@@ -27,9 +27,12 @@
 #include "alg_power_limit.h"
 #include "dvc_supercap.h"
 #include "config.h"
+#include "dvc_agvboard.h"
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported types ------------------------------------------------------------*/
+//计算公式
+
 
 /**
  * @brief 底盘冲刺状态枚举
@@ -46,13 +49,12 @@ enum Enum_Sprint_Status : uint8_t
  * @brief 底盘控制类型
  *
  */
-enum Enum_Chassis_Control_Type :uint8_t
+enum Enum_Chassis_Control_Type : uint8_t
 {
     Chassis_Control_Type_DISABLE = 0,
     Chassis_Control_Type_FLLOW,
     Chassis_Control_Type_SPIN,
 };
-
 /**
  * @brief Specialized, 三轮舵轮底盘类
  *
@@ -82,6 +84,8 @@ public:
 
     //下方转动电机
     Class_DJI_Motor_C620 Motor_Wheel[4];
+    //舵轮类舵小板实例
+    Class_Agv_Board Agv_Board[4];
 
     void Init(float __Velocity_X_Max = 4.0f, float __Velocity_Y_Max = 4.0f, float __Omega_Max = 8.0f, float __Steer_Power_Ratio = 0.5);
 
@@ -134,7 +138,7 @@ protected:
     //内部变量
 
     //舵向电机目标值
-    float Target_Steer_Angle[3];
+    float Target_Steer_Angle_Rad[4];
     //转动电机目标值
     float Target_Wheel_Omega[4];
 
@@ -172,6 +176,8 @@ protected:
 
     //内部函数
     void Speed_Resolution();
+    //舵轮电机角度转底盘坐标角度
+    void AGV_DirectiveMotor_TargetStatus_To_MotorAngle_In_ChassisCoordinate();
 };
 
 /* Exported variables --------------------------------------------------------*/
@@ -443,6 +449,40 @@ void Class_Tricycle_Chassis::Set_Velocity_X_Max(float __Velocity_X_Max)
 }
 
 
+#define wheel_diameter 0.12000000f   // 轮子直径，单位为m
+#define half_width 0.1595f           // 25.000000f		x方向为宽   单位为m
+#define half_length 0.160f           // 35.000000f                 单位为m
+#define ROTATION_CENTER_OFFSET 0.0f // 旋转中心位置偏移量，现在只有y方向上的偏移，且向y负方向偏移，这个偏移量为绝对值
+
+#define THETA_A atan((half_length + ROTATION_CENTER_OFFSET) / half_width) // 转向轮在坐标系下与y轴的夹角（锐角）
+#define THETA_B atan((half_length + ROTATION_CENTER_OFFSET) / half_width) // 转向轮在坐标系下与y轴的夹角（锐角）
+#define THETA_C atan((half_length - ROTATION_CENTER_OFFSET) / half_width) // 转向轮在坐标系下与y轴的夹角（锐角）
+#define THETA_D atan((half_length - ROTATION_CENTER_OFFSET) / half_width) // 转向轮在坐标系下与y轴的夹角（锐角）
+
+#define R_A half_width / cos(THETA_A) // 旋转中心与A舵轮的距离
+#define R_B half_width / cos(THETA_B) // 旋转中心与B舵轮的距离
+#define R_C half_width / cos(THETA_C) // 旋转中心与C舵轮的距离
+#define R_D half_width / cos(THETA_D) // 旋转中心与D舵轮的距离
+
+#define PI 3.141593f
+#define PI2 2 * PI
+#define RPM2RAD 0.104720f                // 	
+#define RPM2VEL (wheel_diameter*PI)/60.0f // 
+#define VEL2RPM 60.0/(wheel_diameter*PI)
+#define M2006_REDUCTION_RATIO 36.000000f // 
+#define M3508_REDUCTION_RATIO 19.000000f // 
+#define GM6020_ENCODER_ANGLE 8192.0f
+
+#define MAX_MOTOR_SPEED 500                 // 
+
+#define MAX_BASE_LINEAR_SPEED 120.817f      // 
+#define MAX_BASE_ROTATIONAL_SPEED 7.260570f // 
+#define NORMAL_LINEAR_SPEED 70.0f
+#define NORMAL_ROTATIONAL_SPEED 0.5f
+
+#define RAD_TO_8191 8191.0f / PI / 2
+
+
 #endif
 
-/************************ COPYRIGHT(C) USTC-ROBOWALKER **************************/
+// /************************ COPYRIGHT(C) USTC-ROBOWALKER **************************/

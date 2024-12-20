@@ -56,6 +56,9 @@ float Math_Sinc(float x);
 int32_t Math_Float_To_Int(float x, float Float_Min, float Float_Max, int32_t Int_Min, int32_t Int_Max);
 float Math_Int_To_Float(int32_t x, int32_t Int_Min, int32_t Int_Max, float Float_Min, float Float_Max);
 
+float Float_Abs(float a);//绝对值函数
+float Square(float Input) ;
+double My_atan(double y, double x);
 /**
  * @brief 限幅函数
  *

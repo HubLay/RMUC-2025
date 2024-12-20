@@ -31,7 +31,7 @@ void Class_IMU::Init()
     INS.AccelLPF = 0.0085;
 
     //初始化温控pid参数
-    PID_IMU_Tempture.Init(2000, 3000, 0, 0.0, uint32_max, uint32_max);
+    PID_IMU_Tempture.Init(1000, 100, 0, 0.0, uint32_max, uint32_max);
     HAL_TIM_PWM_Start(&htim10, TIM_CHANNEL_1);
 
 }
@@ -56,7 +56,7 @@ void Class_IMU::TIM_Calculate_PeriodElapsedCallback(void)
 
     // 核心函数,EKF更新四元数
     IMU_QuaternionEKF_Update(INS.Gyro[0], INS.Gyro[1], INS.Gyro[2], INS.Accel[0], INS.Accel[1], INS.Accel[2], INS_DWT_Dt ,&QEKF_INS);
-
+   
     memcpy(INS.q, QEKF_INS.q, sizeof(QEKF_INS.q));
 
     // 机体系基向量转换到导航坐标系，本例选取惯性系为导航系
@@ -79,7 +79,7 @@ void Class_IMU::TIM_Calculate_PeriodElapsedCallback(void)
     if(Tempture_Cnt_mod50 % 50 == 0)
     {
         PID_IMU_Tempture.Set_Now(BMI088_Raw_Data.Temperature);
-        PID_IMU_Tempture.Set_Target(50.0f);
+        PID_IMU_Tempture.Set_Target(40.0f);
         PID_IMU_Tempture.TIM_Adjust_PeriodElapsedCallback();
         TIM_Set_PWM(&htim10, TIM_CHANNEL_1, (uint16_t)PID_IMU_Tempture.Get_Out());
     }

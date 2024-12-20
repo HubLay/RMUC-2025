@@ -183,4 +183,50 @@ float Math_Int_To_Float(int32_t x, int32_t Int_Min, int32_t Int_Max, float Float
     return (out);
 }
 
+int sign( int x )
+{ 
+     if(x>0)
+     return 1;
+    else if(x==0)
+    return 0;
+    else
+    return -1; 
+}
+
+
+float Float_Abs(float a)//绝对值函数
+{
+	if (a < 0)
+		return -a;
+	else
+		return a;
+}
+
+float Square(float Input) // 平方函数
+{
+	float Ans;
+	Ans = Input * Input;
+	return Ans;
+}
+
+double My_atan(double y, double x)//自定义atan函数
+{
+	double atan;
+	atan = atan2(y, x);
+	if (x == 0)
+	{
+		if (y > 0)
+			atan = PI / 2;
+		else if (y < 0)
+			atan = -PI / 2;
+	}
+	if (y == 0)
+	{
+		if (x > 0)
+			atan = 0;
+		else if (x < 0)
+			atan = PI;
+	}
+	return atan;
+}
 /************************ COPYRIGHT(C) USTC-ROBOWALKER **************************/

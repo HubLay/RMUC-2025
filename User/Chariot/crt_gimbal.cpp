@@ -302,9 +302,9 @@ void Class_Gimbal_Pitch_Motor_LK6010::TIM_PID_PeriodElapsedCallback()
  */
 void Class_Gimbal_Pitch_Motor_LK6010::Transform_Angle()
 {
-    True_Rad_Pitch = 1 * IMU->Get_Rad_Pitch();
-    True_Gyro_Pitch = 1 * IMU->Get_Gyro_Pitch(); 
-    True_Angle_Pitch = 1 * IMU->Get_Angle_Pitch();
+    True_Rad_Pitch = -1 * IMU->Get_Rad_Roll();
+    True_Gyro_Pitch = -1 * IMU->Get_Gyro_Roll(); 
+    True_Angle_Pitch = -1 * IMU->Get_Angle_Roll();
 }
 
 /**
@@ -319,10 +319,10 @@ void Class_Gimbal::Init()
     //yaw轴电机
     Motor_Yaw.PID_Angle.Init(0.65f, 0.0f, 0.0f, 0.0f, 3, 15,0.0f,0.0f,0,0.001f,0.0f);
     //250 300
-    Motor_Yaw.PID_Omega.Init(6000.0f, 10.0f, 0.0f, 0.0f, 7000.0f, 20000.0f,0.0f,0.0f,0.0f,0.001f,0.0f);
+    Motor_Yaw.PID_Omega.Init(4000.0f, 12000.0f, 0.0f, 0.0f, 7000.0f, 20000.0f,0.0f,0.0f,0.0f,0.001f,0.0f);
     Motor_Yaw.PID_Torque.Init(0.78f, 100.0f, 0.0f, 0.0f, Motor_Yaw.Get_Output_Max(), Motor_Yaw.Get_Output_Max());
     Motor_Yaw.IMU = &Boardc_BMI;
-    Motor_Yaw.Init(&hcan2, DJI_Motor_ID_0x208, DJI_Motor_Control_Method_IMU_ANGLE, 2048);
+    Motor_Yaw.Init(&hcan2, DJI_Motor_ID_0x205, DJI_Motor_Control_Method_IMU_ANGLE, 2048);
 
     //pitch轴电机
     Motor_Pitch.PID_Angle.Init(1.2f, 0.0f, 0.1f, 0.0f, 6.0f * PI, 6.0f * PI);
@@ -332,9 +332,9 @@ void Class_Gimbal::Init()
     Motor_Pitch.Init(&hcan1, DJI_Motor_ID_0x206, DJI_Motor_Control_Method_IMU_ANGLE, 3413);
 
     //pitch轴电机 LK6010
-    Motor_Pitch_LK6010.PID_Angle.Init(60.0f, 0.1f, 0.0f, 0.0f, 80.0f ,250.0f);
+    Motor_Pitch_LK6010.PID_Angle.Init(48.0f, 0.0018f, 0.0f, 0.0f, 80.0f ,250.0f);
     //Motor_Pitch_LK6010.PID_Omega.Init(100.0f, 0.1f, 0.0f, 0, Motor_Pitch_LK6010.Get_Output_Max()/2.0f, Motor_Pitch_LK6010.Get_Output_Max(),0.0f,0.0f);
-	Motor_Pitch_LK6010.PID_Omega.Init(1.0f, 0.0f, 0.0f, 0, Motor_Pitch_LK6010.Get_Output_Max()/2.0f, Motor_Pitch_LK6010.Get_Output_Max(),0.0f,0.0f,0.0f,0.001f,0.0f);
+	Motor_Pitch_LK6010.PID_Omega.Init(0.6f, 0.0f, 0.0f, 0, Motor_Pitch_LK6010.Get_Output_Max()/2.0f, Motor_Pitch_LK6010.Get_Output_Max(),0.0f,0.0f,0.0f,0.001f,0.0f);
     Motor_Pitch_LK6010.PID_Torque.Init(0.8f, 100.0f, 0.0f, 0.0f, Motor_Pitch_LK6010.Get_Output_Max(), Motor_Pitch_LK6010.Get_Output_Max());
     Motor_Pitch_LK6010.IMU = &Boardc_BMI;
     Motor_Pitch_LK6010.Init(&hcan1, LK_Motor_ID_0x141, DJI_Motor_Control_Method_IMU_ANGLE);

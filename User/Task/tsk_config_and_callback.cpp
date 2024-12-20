@@ -58,7 +58,7 @@
 /* Private macros ------------------------------------------------------------*/
 
 /* Private types -------------------------------------------------------------*/
-
+extern float sum; //用于测试
 /* Private variables ---------------------------------------------------------*/
 
 uint32_t init_finished =0 ;
@@ -113,6 +113,11 @@ void Chassis_Device_CAN1_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
             
         }
         break;
+					 case (0x20E):
+    {
+        chariot.Chassis.Agv_Board[1].CAN_RxCpltCallback(CAN_RxMessage->Data);
+    }
+    break;
     }
 }
 #endif
@@ -126,14 +131,14 @@ void Chassis_Device_CAN2_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
 {
     switch (CAN_RxMessage->Header.StdId)
     {
-    case (0x208):  //留给yaw电机编码器回传 用于底盘随动
+    case (0x208):  
     {
-        chariot.Motor_Yaw.CAN_RxCpltCallback(CAN_RxMessage->Data);
+       
     }
     break;
-    case (0x77):  //留给上板通讯
+    case (0x150):  //留给上板通讯
     {
-        chariot.CAN_Chassis_Rx_Gimbal_Callback();
+        chariot.CAN_Chassis_Rx_Gimbal_Callback(CAN_RxMessage->Data);
     }
     break;
     case (0x67):  //留给超级电容
@@ -141,9 +146,9 @@ void Chassis_Device_CAN2_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
         chariot.Chassis.Supercap.CAN_RxCpltCallback(CAN_RxMessage->Data);
     }
     break;
-    case (0x205):
+    case (0x205)://留给yaw电机编码器回传 用于底盘随动
     {
-        
+         chariot.Motor_Yaw.CAN_RxCpltCallback(CAN_RxMessage->Data);
     }
     break;
     case (0x206):
@@ -151,6 +156,7 @@ void Chassis_Device_CAN2_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
         
     }
     break;
+	
 	}
 }
 #endif
@@ -208,9 +214,9 @@ void Gimbal_Device_CAN2_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
         chariot.CAN_Gimbal_Rx_Chassis_Callback();
     }
     break;
-    case (0x208):   //保留can2对6020编码器的接口
+    case (0x208):   
     {
-        chariot.Gimbal.Motor_Yaw.CAN_RxCpltCallback(CAN_RxMessage->Data);
+       
     }
     break;
     case (0x204):
@@ -218,9 +224,9 @@ void Gimbal_Device_CAN2_Callback(Struct_CAN_Rx_Buffer *CAN_RxMessage)
         
     }
     break;
-    case (0x205):
+    case (0x205)://保留can2对6020编码器的接口
     {
-       
+        chariot.Gimbal.Motor_Yaw.CAN_RxCpltCallback(CAN_RxMessage->Data);
     }
     break;
     case (0x206):
@@ -313,6 +319,7 @@ void Ist8310_IIC3_Callback(uint8_t* Tx_Buffer, uint8_t* Rx_Buffer, uint16_t Tx_L
  * @param Length 长度
  */
 #ifdef CHASSIS
+
 void Referee_UART6_Callback(uint8_t *Buffer, uint16_t Length)
 {
     chariot.Referee.UART_RxCpltCallback(Buffer,Length);
@@ -329,6 +336,9 @@ void SuperCAP_UART1_Callback(uint8_t *Buffer, uint16_t Length)
 {
     chariot.Chassis.Supercap.UART_RxCpltCallback(Buffer);
 }
+
+
+
 #endif
 /**
  * @brief USB MiniPC回调函数
@@ -502,6 +512,11 @@ extern "C" void Task_Init()
         if(chariot.Referee_UI_Refresh_Status == Referee_UI_Refresh_Status_ENABLE)
             Init_Cnt=10;
         GraphicSendtask();
+         uint16_t Chassis_Power_Max;
+
+    Chassis_Power_Max =chariot.Referee.Get_Chassis_Power_Max();
+		printf("%f,%f\n",Chassis_Power_Max,sum);
+        HAL_Delay(10);
     #endif
 }
 
