@@ -185,7 +185,7 @@ void Class_Booster::Init()
     Motor_Friction_Left.PID_Omega.PID_D_Filter.Init(-20000.0f,20000.0f,Filter_Fourier_Type_LOWPASS,2,0);
 
     //摩擦轮电机右
-    Motor_Friction_Right.PID_Omega.Init(500.0f, 11.0f, 0.8f, 0.0f, 2000.0f, Motor_Friction_Right.Get_Output_Max());
+    Motor_Friction_Right.PID_Omega.Init(400.0f, 8.0f, 2.5f, 0.0f, 2000.0f, Motor_Friction_Right.Get_Output_Max());
     Motor_Friction_Right.Init(&hcan1, DJI_Motor_ID_0x201, DJI_Motor_Control_Method_OMEGA, 1.0f);
     Motor_Friction_Right.PID_Omega.Start_D_Fifter();
     Motor_Friction_Right.PID_Omega.PID_D_Filter.Init(-20000.0f,20000.0f,Filter_Fourier_Type_LOWPASS,2,0);
@@ -316,6 +316,7 @@ void Class_Booster::Output()
  * @brief 定时器计算函数
  *
  */
+//float Omega_BBB = 0.0f;
 void Class_Booster::TIM_Calculate_PeriodElapsedCallback()
 {     
     
@@ -325,7 +326,8 @@ void Class_Booster::TIM_Calculate_PeriodElapsedCallback()
     FSM_Antijamming.Reload_TIM_Status_PeriodElapsedCallback();
 
     //Output();
-
+    // Motor_Driver.Set_DJI_Motor_Control_Method(DJI_Motor_Control_Method_OMEGA);
+    // Motor_Driver.Set_Target_Omega_Radian(Omega_BBB);
     Motor_Driver.TIM_PID_PeriodElapsedCallback();
     Motor_Friction_Left.TIM_PID_PeriodElapsedCallback();
     Motor_Friction_Right.TIM_PID_PeriodElapsedCallback();

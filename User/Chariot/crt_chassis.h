@@ -67,6 +67,7 @@ enum Enum_Chassis_Reference_Angle_Status
 
 class Class_PowerControl_FSM : public Class_FSM{
     public:
+    Class_Referee *Referee;
     Class_Supercap *Supercap;
     
     inline float Get_PowerLimit_Output();
@@ -84,7 +85,7 @@ class Class_PowerControl_FSM : public Class_FSM{
     float Buffer_Power = 0.0f;
     float Chassis_Max_Power = 0.0f;
     float Chassis_Buffer = 0.0f;                //底盘缓冲能量
-    float Chassis_Buffer_Min = 30.0f;           //底盘最小缓冲能量
+    float Chassis_Buffer_Min = 40.0f;           //底盘最小缓冲能量
     float Chassis_Buffer_Kp = 1.5f;             
     float PowerLimit_Output = 0.0f;
     float Supercap_Protected_Enargy = 30.0f;
@@ -142,7 +143,7 @@ public:
     //下方转动电机
     Class_DJI_Motor_C620 Motor_Wheel[4];
 
-    void Init(float __Velocity_X_Max = 15.0f, float __Velocity_Y_Max = 15.0f, float __Omega_Max = 20.0f, float __Steer_Power_Ratio = 0.5);
+    void Init(float __Velocity_X_Max = 6.00f, float __Velocity_Y_Max = 6.00f, float __Omega_Max = 20.0f, float __Steer_Power_Ratio = 0.5);
 
     inline Enum_Chassis_Control_Type Get_Chassis_Control_Type();
     inline Enum_Chassis_Reference_Angle_Status Get_Chassis_Reference_Angle_Status();
@@ -173,6 +174,7 @@ public:
     inline void Set_Velocity_Y_Max(float __Velocity_Y_Max);
     inline void Set_Velocity_X_Max(float __Velocity_X_Max);
 
+    float Low_Chassis_Energy_Callback();
     void TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Status __Sprint_Status);
 
 protected:

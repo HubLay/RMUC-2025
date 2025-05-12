@@ -413,9 +413,9 @@ void Task1ms_TIM5_Callback()
     {
         #ifdef GIMBAL
         chariot.FSM_Alive_Control.Reload_TIM_Status_PeriodElapsedCallback();
-        chariot.FSM_Alive_Control_VT13.Reload_TIM_Status_PeriodElapsedCallback();
+        //chariot.FSM_Alive_Control_VT13.Reload_TIM_Status_PeriodElapsedCallback();
         #endif
-        #ifdef CHASSIS
+        #ifdef CHASSIS        
 
         static uint32_t mod30 = 0; 
         mod30 ++;

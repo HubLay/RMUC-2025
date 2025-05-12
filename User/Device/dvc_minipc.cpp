@@ -68,7 +68,7 @@ void Class_MiniPC::CAN_Data_Process()
 
   Rx_Angle_Pitch = -tmp_pitch;
   Rx_Angle_Yaw = tmp_yaw;
-  Math_Constrain(&Rx_Angle_Pitch,-10.0f,25.0f);
+  Math_Constrain(&Rx_Angle_Pitch,-13.5f,30.0f);
  
 }
 
@@ -89,7 +89,7 @@ void Class_MiniPC::Data_Process()
     // Rx_Angle_Pitch = meanFilter(tmp_pitch);
     Rx_Angle_Pitch = -tmp_pitch;
     Rx_Angle_Yaw = tmp_yaw;
-    Math_Constrain(&Rx_Angle_Pitch,-15.0f,30.0f);
+    Math_Constrain(&Rx_Angle_Pitch,-11.5f,30.0f);
     // if(Pack_Rx.hander!=0xA5) memset(&Pack_Rx,0,USB_Manage_Object->Rx_Buffer_Length);
 
     memset(USB_Manage_Object->Rx_Buffer, 0, USB_Manage_Object->Rx_Buffer_Length);

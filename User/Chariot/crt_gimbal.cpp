@@ -350,11 +350,11 @@ void Class_Gimbal::Init()
  
     //yaw轴电机 
     //250 300
-    Motor_Yaw.PID_Angle.Init(0.335000008f, 0.0f, 0.000789800019f, 0.0f, 1.0f, 20.0f,0.0f,0.0f,0.0f,0.001f,0.0f, PID_D_First_ENABLE);
+    Motor_Yaw.PID_Angle.Init(0.400000006f, 0.00999999978f, 0.0f, 0.0f, 0.30f, 4.30f,0.0f,0.0f,0.0f,0.001f,0.0f, PID_D_First_ENABLE);
     Motor_Yaw.PID_Angle.PID_D_Filter.Init(-25000.0f,25000.0f,Filter_Fourier_Type_LOWPASS,3,0);
     Motor_Yaw.PID_Angle.Start_D_Fifter();
 
-    Motor_Yaw.PID_Omega.Init(19000.0f, 14000.0f, 0.0f, -0.0f, 15000.0f, 20000.0f,0.0f,0.0f,0.0f,0.001f,0.0f);
+    Motor_Yaw.PID_Omega.Init(18000.0f, 10000.0f, 0.0f, -0.0f, 15000.0f, 20000.0f,0.0f,0.0f,0.0f,0.001f,0.0f);
     Motor_Yaw.PID_Torque.Init(0.78f, 100.0f, 0.0f, 0.0f, Motor_Yaw.Get_Output_Max(), Motor_Yaw.Get_Output_Max());
     Motor_Yaw.IMU = &Boardc_BMI;
     Motor_Yaw.Init(&hcan2, DJI_Motor_ID_0x205, DJI_Motor_Control_Method_IMU_ANGLE, -3863);
@@ -457,13 +457,16 @@ void Class_Gimbal::TIM_Calculate_PeriodElapsedCallback()
     //Motor_Pitch_LK6010.Transform_Angle();
 
     //测试
-    // if(t % 3 == 0){
-    //     t2 ++;
-    //    Target = 5.0f*sinf((float)t2*PI/50.0f);
+    // if (Gimbal_Control_Type != Gimbal_Control_Type_DISABLE)
+    // {
+    //     if (t % 3 == 0)
+    //     {
+    //         t2++;
+    //         Target = 5.0f * sinf((float)t2 * PI / 50.0f);
+    //     }
+    //     Motor_Yaw.Set_Target_Angle(Target);
+    //     t++;
     // }
-    // Motor_Yaw.Set_Target_Angle(Target);
-    // t++;
-    //
 
     Motor_Yaw.TIM_PID_PeriodElapsedCallback();
     //Motor_Pitch_LK6010.TIM_PID_PeriodElapsedCallback();

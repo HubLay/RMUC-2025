@@ -13,6 +13,7 @@
  #define DVC_SUPERCAP_H
  
  /* Includes ------------------------------------------------------------------*/
+ #include "dvc_referee.h"
  #include "alg_fsm.h"
  #include "drv_math.h"
  #include "drv_can.h"
@@ -45,7 +46,7 @@
      float Cap_Percent;                    // 容量百分比
      Enum_Supercap_Status Supercap_Status; // 超级电容状态
      float Overload_Power;                 // 过载功率
-     uint8_t Used_Energy;                  // 已使用能量
+    float Used_Energy;                  // 已使用能量
  } __attribute__((packed));
  
  /**
@@ -75,6 +76,7 @@
  class Class_Supercap
  {
  public:
+     Class_Referee *Referee;
      void Init(CAN_HandleTypeDef *__hcan, float __Limit_Power_Max = 45);
      void Init_UART(UART_HandleTypeDef *__huart, uint8_t __fame_header = '*', uint8_t __fame_tail = ';', float __Limit_Power_Max = 45.0f);
  
@@ -83,7 +85,10 @@
      inline float Get_Stored_Energy();
      inline float Get_Now_Voltage();
      inline float Get_Buffer_Power();
+     inline float Get_Total_Energy();
      inline Enum_Supercap_Mode Get_Supercap_Mode();
+
+     inline void Set_Total_Enargy(float __Total_Energy);
      inline void Set_Limit_Power(float __Limit_Power);
      inline void Set_Supercap_Mode(Enum_Supercap_Mode __Mode);
  
@@ -112,7 +117,9 @@
      // 常量
  
      // 内部变量
- 
+    
+     float Total_Energy = 20000.0f;
+    
      // 当前时刻的超级电容接收flag
      uint32_t Flag = 0;
      // 前一时刻的超级电容接收flag
@@ -159,6 +166,11 @@
      return (Supercap_Data.Buffer_Power);
  }
 
+ inline float Class_Supercap::Get_Total_Energy()
+ {
+   return Total_Energy;
+ }
+
  inline Enum_Supercap_Mode Class_Supercap::Get_Supercap_Mode()
  {
    return Enum_Supercap_Mode();
@@ -202,7 +214,12 @@
  {
      return (Supercap_Data.Cap_Percent);
  }
- 
+
+ inline void Class_Supercap::Set_Total_Enargy(float __Total_Energy)
+ {
+    Total_Energy = __Total_Energy;
+ }
+
  /**
   * @brief 设定绝对最大限制功率
   *

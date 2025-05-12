@@ -106,9 +106,15 @@ void Class_Supercap::Data_Process()
         Supercap_Data.Cap_Percent = Supercap_Data.Buffer_Power/143.0f;
         Supercap_Data.Supercap_Status = static_cast<Enum_Supercap_Status>(CAN_Manage_Object->Rx_Buffer.Data[5]);
         Supercap_Status = Supercap_Data.Supercap_Status;
-       // Supercap_Data.Used_Energy = CAN_Manage_Object->Rx_Buffer.Data[6];
        memcpy(&temp_used_energy, CAN_Manage_Object->Rx_Buffer.Data + 6, 2);
-       Supercap_Data.Used_Energy = temp_used_energy;
+       Supercap_Data.Used_Energy = (float)temp_used_energy/10000.0f;
+       if(Referee->Get_Game_Stage() == Referee_Game_Status_Stage_BATTLE)
+           Total_Energy -= Supercap_Data.Used_Energy;
+       else
+           Total_Energy = 20000.0f;
+       if(Total_Energy < 0){
+           Total_Energy = 0;
+       }
     }
 
     if (CAN_Manage_Object->Rx_Buffer.Header.StdId == 0x55)

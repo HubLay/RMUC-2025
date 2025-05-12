@@ -201,6 +201,7 @@ public:
         void TIM1msMod50_Gimbal_Communicate_Alive_PeriodElapsedCallback();
 
         float Fric_Omega = 0.0f;
+        Enum_VT13_Key_Status VT13_Key_C_Status = VT13_Key_Status_FREE;
         Enum_Gimbal_Control_Type Gimbal_Control_Type = Gimbal_Control_Type_DISABLE;
 
     #elif defined(GIMBAL)
@@ -268,7 +269,7 @@ protected:
 
     #ifdef CHASSIS
         //底盘标定参考正方向角度(数据来源yaw电机)       Rad
-        float Reference_Angle = 0.78f;                  //4.23
+        float Reference_Angle = 3.77589393f;                  //4.23
         //小陀螺云台坐标系稳定偏转角度 用于矫正
         float Offset_Angle = 0.0f;  //
         //底盘转换后的角度（数据来源yaw电机）

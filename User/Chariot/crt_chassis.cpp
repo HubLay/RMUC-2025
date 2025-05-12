@@ -64,7 +64,7 @@ void Class_Tricycle_Chassis::Init(float __Velocity_X_Max, float __Velocity_Y_Max
 
     #ifdef POWER_LIMIT
     //超级电容初始化
-    PowerControl_FSM.Init(2,0);
+    PowerControl_FSM.Init(3,0);
     PowerControl_FSM.Supercap = &Supercap;
     Supercap.Init(&hcan1,45);
 
@@ -169,6 +169,63 @@ void Class_Tricycle_Chassis::Speed_Resolution(){
  */
 float Power_Limit_K = 1.0f;
 extern float Chassis_Power;
+float Class_Tricycle_Chassis::Low_Chassis_Energy_Callback()
+{
+    // 血量优先
+    float Limit_Output = 0.0;
+    switch (Referee->Get_Level())
+    {
+    case 1:
+        Limit_Output = 45.0f / 3.0f;
+    case 2:
+    {
+        Limit_Output = 60.0f / 3.0f;
+    }
+    break;
+    case 3:
+    {
+        Limit_Output = 65.0f / 3.0f;
+    }
+    break;
+    case 4:
+    {
+        Limit_Output = 70.0f / 3.0f;
+    }
+    break;
+    case 5:
+    {
+        Limit_Output = 75.0f / 3.0f;
+    }
+    break;
+    case 6:
+    {
+        Limit_Output = 80.0f / 3.0f;
+    }
+    break;
+    case 7:
+    {
+        Limit_Output = 85.0f / 3.0f;
+    }
+    break;
+    case 8:
+    {
+        Limit_Output = 90.0f / 3.0f;
+    }
+    break;
+    case 9:
+    {
+        Limit_Output = 100.0f / 3.0f;
+    }
+    break;
+    case 10:
+    {
+        Limit_Output = 120.0f / 3.0f;
+    }
+    break;
+    }
+
+    return Limit_Output;
+}
 void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Status __Sprint_Status)
 {
     #ifdef SPEED_SLOPE
@@ -209,7 +266,13 @@ void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Sta
     else
     {
         PowerControl_FSM.Set_Sprint_Status(Sprint_Status);
-        PowerControl_FSM.Set_Chassis_Max_Power(Referee->Get_Chassis_Power_Max());
+        if(Supercap.Get_Total_Energy() < 250){          //20000J超限状态
+            float Chassis_Low_Power = Low_Chassis_Energy_Callback();
+            PowerControl_FSM.Set_Chassis_Max_Power(Chassis_Low_Power);
+        }
+        else{
+            PowerControl_FSM.Set_Chassis_Max_Power(Referee->Get_Chassis_Power_Max());
+        }
         PowerControl_FSM.Set_Chassis_Buffer(Referee->Get_Chassis_Energy_Buffer());
         PowerControl_FSM.Reload_TIM_Status_PeriodElapsedCallback();
         Power_Limit.Set_Power_Limit(PowerControl_FSM.Get_PowerLimit_Output());
@@ -223,7 +286,6 @@ void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Sta
         Power_Limit.Set_Supercap_Enegry(Supercap.Get_Stored_Energy());
     
     Power_Limit.TIM_Adjust_PeriodElapsedCallback(Motor_Wheel);  //功率限制算法
-
     Supercap.Set_Limit_Power(Referee->Get_Chassis_Power_Max() + PowerControl_FSM.Get_Buffer_Power() + 5.0f);
     Supercap.TIM_Supercap_PeriodElapsedCallback();          //向超电发送信息
 
@@ -306,7 +368,7 @@ void Class_PowerControl_FSM::Reload_TIM_Status_PeriodElapsedCallback()
         case(0):    //超电启用状态
             if(Sprint_Status == Sprint_Status_ENABLE && Supercap->Get_Supercap_Status() != Disconnected){
                 Buffer_Power = (Chassis_Buffer - Chassis_Buffer_Min) * Chassis_Buffer_Kp;
-                Math_Constrain(&Buffer_Power,-45.0f,45.0f);
+                Math_Constrain(&Buffer_Power,-60.0f,45.0f);
                 PowerLimit_Output = Chassis_Max_Power + Supercap->Get_Buffer_Power() + Buffer_Power;
             }
             else{
@@ -321,13 +383,12 @@ void Class_PowerControl_FSM::Reload_TIM_Status_PeriodElapsedCallback()
             }
 
             Buffer_Power = (Chassis_Buffer - Chassis_Buffer_Min) * Chassis_Buffer_Kp;
-            Math_Constrain(&Buffer_Power,-45.0f,45.0f);
+            Math_Constrain(&Buffer_Power,-60.0f,45.0f);
             PowerLimit_Output = Chassis_Max_Power + Buffer_Power;
 
         break;
 
-        case(2):        //裁判系统低缓冲能量状态
-            
+        case(2):
 
         break;
 
