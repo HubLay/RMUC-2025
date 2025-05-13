@@ -358,7 +358,7 @@ protected:
 
 
     const float g = 9.8; // 重力加速度
-    const float bullet_v = 24.0; // 子弹速度  
+    const float bullet_v = 23.0; // 子弹速度  
 
     // 距离
     float Distance;

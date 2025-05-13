@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -194,6 +193,11 @@
           <count>8</count>
           <WinNumber>1</WinNumber>
           <ItemText>Omega_BBB</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>control_type_2</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

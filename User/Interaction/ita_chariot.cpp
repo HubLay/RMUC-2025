@@ -205,7 +205,7 @@ void Class_Chariot::CAN_Chassis_Rx_Gimbal_Callback_2()
     Gimbal_Control_Type = (Enum_Gimbal_Control_Type)(control_type_2 & 0x03);
     Booster_User_Control_Type = (Enum_Booster_User_Control_Type)((control_type_2 >> 2) & 0x03);
     Chassis.Set_Chassis_Reference_Angle_Status((Enum_Chassis_Reference_Angle_Status)((control_type_2 >> 4) & 0x01));
-    VT13_Key_C_Status = (Enum_VT13_Key_Status)((control_type >> 6) & 0x03);
+    Yaw_Turn_Complete = ((control_type_2 >> 5) & 0x01);
 
     memcpy(&Fric_Omega_u16, &CAN_Manage_Object->Rx_Buffer.Data[0],sizeof(uint16_t));
     Fric_Omega = Math_Int_To_Float(Fric_Omega_u16,0, 0x7FFF, -800.0f, 800.0f);
@@ -262,14 +262,12 @@ void Class_Chariot::CAN_Gimbal_Tx_Chassis_Callback()
     Enum_Gimbal_Control_Type gimbal_control_type;           //2bit
     Enum_Booster_User_Control_Type booster_user_control_type;         //3bit
     Enum_Chassis_Reference_Angle_Status chassis_reference_angle_status;
-    Enum_VT13_Key_Status vt13_key_c_status;
 
     //控制类型字节
     gimbal_control_type = Gimbal.Get_Gimbal_Control_Type();
     booster_user_control_type = Booster.Get_Booster_User_Control_Type();
     chassis_reference_angle_status = Chassis.Get_Chassis_Reference_Angle_Status();
-    vt13_key_c_status = VT13.Get_Keyboard_Key_C();
-    control_type_2 = (uint8_t)(vt13_key_c_status << 6 | chassis_reference_angle_status << 4| booster_user_control_type << 2 | gimbal_control_type);
+    control_type_2 = (uint8_t)(Yaw_Turn_Complete << 5 | chassis_reference_angle_status << 4| booster_user_control_type << 2 | gimbal_control_type);
 
     Fric_Omega = (abs(Booster.Motor_Friction_Left.Get_Now_Omega_Radian()) + abs(Booster.Motor_Friction_Right.Get_Now_Omega_Radian()))/2.0f;
     Fric_Omega_u16 = Math_Float_To_Int(Fric_Omega, -800.0f, 800.0f,0,0x7FFF);
@@ -776,7 +774,7 @@ void Class_Chariot::Control_Gimbal()
         if (VT13.Get_Keyboard_Key_C() == VT13_Key_Status_TRIG_FREE_PRESSED)
         {
             tmp_gimbal_yaw += 180;
-            Gimbal.Yaw_Turn_Complete = 0;
+            Yaw_Turn_Complete = 0;
             if(Chassis.Get_Chassis_Reference_Angle_Status() == Chassis_Reference_Angle_Positive){
                 Chassis.Set_Chassis_Reference_Angle_Status(Chassis_Reference_Angle_Negative);
             }
@@ -1052,10 +1050,10 @@ void Class_Chariot::TIM_Calculate_PeriodElapsedCallback()
     {
         //随动yaw角度优化
         if(Chassis.Get_Chassis_Reference_Angle_Status() == Chassis_Reference_Angle_Positive){
-            Reference_Angle = 3.77589393f;
+            Reference_Angle = 3.7781949f;
         }
         else if(Chassis.Get_Chassis_Reference_Angle_Status() == Chassis_Reference_Angle_Negative){
-            Reference_Angle = 3.77589393f + PI;
+            Reference_Angle = 3.7781949f + PI;
         }
         float temp_yaw,temp_reference;
         temp_yaw = Chassis_Angle;
@@ -1102,13 +1100,12 @@ void Class_Chariot::TIM_Calculate_PeriodElapsedCallback()
         PID_Chassis_Fllow.Set_Now(temp_yaw);
         PID_Chassis_Fllow.TIM_Adjust_PeriodElapsedCallback();
         //Chassis.Set_Target_Omega(0.0f);
-        // if(VT13_Key_C_Status == VT13_Key_Status_TRIG_FREE_PRESSED){
-        //     Chassis.Set_Target_Omega(0.0f);
-        // }
-        // else{
-            
-        // }
-        Chassis.Set_Target_Omega(PID_Chassis_Fllow.Get_Out());
+        if(Yaw_Turn_Complete){
+            Chassis.Set_Target_Omega(PID_Chassis_Fllow.Get_Out());
+        }
+        else{
+            Chassis.Set_Target_Omega(0.0f);
+        }
     }
     // 底盘解算任务
     Chassis.Supercap.Set_Supercap_Mode(Supercap_Mode_ENABLE);
@@ -1126,6 +1123,9 @@ void Class_Chariot::TIM_Calculate_PeriodElapsedCallback()
         //传输数据给上位机
         MiniPC.TIM_Write_PeriodElapsedCallback();
 
+        if(fabs(Gimbal.Motor_Yaw.Get_True_Angle_Yaw() - Gimbal.Motor_Yaw.Get_Target_Angle()) < 1.0f && Yaw_Turn_Complete == 0){
+            Yaw_Turn_Complete = 1;
+        }
     #endif
 }
 

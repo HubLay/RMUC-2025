@@ -274,6 +274,7 @@ protected:
 
     // yaw轴角度
     int8_t First_Flag = 1;          //记录是否是第一次进入，用来给遥控器数值做低通滤波
+    
     float Target_Yaw_Angle = 0.0f;         
     float Pre_Target_Yaw_Angle = 0.0f;
     // pitch轴角度
