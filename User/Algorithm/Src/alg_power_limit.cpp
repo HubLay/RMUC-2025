@@ -215,7 +215,7 @@ void Class_Power_Limit::Set_Motor(Class_DJI_Motor_C620 (&Motor)[4])
     {
         Input_Torque[i] = Motor[i].Get_Out()*current_to_torqure;
         Omega[i] = Motor[i].Get_Now_Omega_Radian();
-		Torque_Now[i] = Motor[i].Get_Now_Torque()*current_to_torqure;
+				Torque_Now[i] = Motor[i].Get_Now_Torque()*current_to_torqure;
     }
 }
 

@@ -175,8 +175,8 @@ void Class_Booster::Init(Enum_Booster_Type __Booster_Type)
     switch(__Booster_Type){
         case(Booster_Type_A):{
             //拨弹盘电机
-            Motor_Driver.PID_Angle.Init(25.0f, 0.0f, 0.0f, 0.0f, 5.0f * PI, 5.0f * PI);
-            Motor_Driver.PID_Omega.Init(2500.0f, 500.0f, 0.0f, 0.0f, Motor_Driver.Get_Output_Max(), Motor_Driver.Get_Output_Max());
+            Motor_Driver.PID_Angle.Init(32.0f, 0.0f, 0.17f, 0.0f, 5.0f * PI, 5.0f * PI);
+            Motor_Driver.PID_Omega.Init(800.0f, 15.0f, 0.0f, 0.0f, Motor_Driver.Get_Output_Max(), Motor_Driver.Get_Output_Max());
             Motor_Driver.Init(&hfdcan3, DJI_Motor_ID_0x202, DJI_Motor_Control_Method_OMEGA);
 
             //摩擦轮电机左
@@ -192,8 +192,8 @@ void Class_Booster::Init(Enum_Booster_Type __Booster_Type)
         break;
         case(Booster_Type_B):{
             //拨弹盘电机
-            Motor_Driver.PID_Angle.Init(25.0f, 0.0f, 0.0f, 0.0f, 5.0f * PI, 5.0f * PI);
-            Motor_Driver.PID_Omega.Init(2500.0f, 500.0f, 0.0f, 0.0f, Motor_Driver.Get_Output_Max(), Motor_Driver.Get_Output_Max());
+            Motor_Driver.PID_Angle.Init(32.0f, 0.0f, 0.17f, 0.0f, 5.0f * PI, 5.0f * PI);
+            Motor_Driver.PID_Omega.Init(800.0f, 15.0f, 0.0f, 0.0f, Motor_Driver.Get_Output_Max(), Motor_Driver.Get_Output_Max());
             Motor_Driver.Init(&hfdcan3, DJI_Motor_ID_0x203, DJI_Motor_Control_Method_OMEGA);
 
             //摩擦轮电机左
@@ -270,6 +270,7 @@ void Class_Booster::Output()
             Motor_Driver.Set_Target_Radian(Driver_Angle);
 
             Set_Friction_Control_Type(Friction_Control_Type_ENABLE);
+            Set_Booster_Control_Type(Booster_Control_Type_CEASEFIRE);
         }
         break;
         case (Booster_Control_Type_MULTI):
@@ -284,6 +285,7 @@ void Class_Booster::Output()
             Motor_Driver.Set_Target_Radian(Driver_Angle);
 
             Set_Friction_Control_Type(Friction_Control_Type_ENABLE);
+            Set_Booster_Control_Type(Booster_Control_Type_CEASEFIRE);
         }
         break;
         case (Booster_Control_Type_REPEATED):
@@ -296,21 +298,15 @@ void Class_Booster::Output()
             // 根据冷却计算拨弹盘默认速度, 此速度下与冷却均衡
             Default_Driver_Omega = - 80.f / 10.0f / 8.0f * 2.0f * PI;
             Motor_Driver.Set_Target_Omega_Radian(Default_Driver_Omega);
-            // 热量控制
-            // if(Heat < 350){
-            //     Motor_Driver.Set_Target_Omega_Radian(Driver_Omega);
-            // }
-            // else if(Heat < 370 && Heat > 350)
-            // {
-            //     float tmp_omega;       
-            //     tmp_omega = (370.f - Heat) / (400.f - 350.f) * Default_Driver_Omega;
-            //     Motor_Driver.Set_Target_Omega_Radian(tmp_omega);
-            // }
-            // else if(Heat > 370)
-            // {
-            //     Motor_Driver.Set_Target_Omega_Radian(0.0f);
-            // }
-            Cooling_Value = CAN3_Chassis_Rx_Data_B.cooling_value;
+
+            //冷却时间获取
+            if(CAN3_Chassis_Rx_Data_B.cooling_value == 0){
+                Cooling_Value = 80;
+            }
+            else{
+                Cooling_Value = CAN3_Chassis_Rx_Data_B.cooling_value;
+            }
+
             if(shoot_time == 0)
             {
                 ShootTime = ((Heat_Max - Heat) + 2 * Cooling_Value) * 10;

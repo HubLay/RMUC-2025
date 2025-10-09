@@ -397,7 +397,6 @@ void Class_DJI_Motor_GM6020::TIM_PID_PeriodElapsedCallback()
     case (DJI_Motor_Control_Method_OMEGA):
     {
         PID_Omega.Set_Target(Target_Omega_Angle);
-        //PID_Omega.Set_Target(ome);
         PID_Omega.Set_Now(Transform_Omega);
         PID_Omega.TIM_Adjust_PeriodElapsedCallback();
 
@@ -423,14 +422,12 @@ void Class_DJI_Motor_GM6020::TIM_PID_PeriodElapsedCallback()
     {       
         
         PID_Angle.Set_Target(Target_Angle);
-        //PID_Angle.Set_Target(ang);
         PID_Angle.Set_Now(t_yaw * 180.0f /PI);
         PID_Angle.TIM_Adjust_PeriodElapsedCallback();
         
         Target_Omega_Angle = PID_Angle.Get_Out();;
 
         PID_Omega.Set_Target(-Target_Omega_Angle);//逆时针速度为负，而角度逆时针为正，加负号，使速度与角度方向一致
-        //PID_Omega.Set_Target(ome);
         PID_Omega.Set_Now(Data.Now_Omega_Angle);
         PID_Omega.TIM_Adjust_PeriodElapsedCallback();
 

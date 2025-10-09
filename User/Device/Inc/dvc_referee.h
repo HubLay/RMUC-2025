@@ -1113,7 +1113,7 @@ struct Struct_Referee_Tx_Data_Interaction_Custom_Controller
 } __attribute__((packed));
 
 /**
- * @brief 裁判系统接收的数据, 0x0303雷达发送小地图交互信息, 用户自主最高30Hz发送
+ * @brief 裁判系统接收的数据, 0x0303云台手发送小地图交互信息, 用户自主最高30Hz发送
  *
  */
 struct Struct_Referee_Tx_Data_Interaction_Radar_Send
@@ -1195,7 +1195,7 @@ struct Struct_Sentry_cmd_t
 } __attribute__((packed));
 
 /**
- * @brief 裁判系统发送的数据, 0x200雷达接收小地图交互信息, 用户自主最高30Hz发送
+ * @brief 发给雷达的指令
  *
  */
 struct Struct_Sentry_To_Radar_t
@@ -1408,7 +1408,7 @@ protected:
     //飞镖状态
     Struct_Referee_Rx_Data_Robot_Dart_Command Robot_Dart_Command;
     //敌军位置
-    //客户端接收小地图交互信息
+    //雷达发送的敌方位置信息
     Struct_Referee_Tx_Data_Interaction_Robot_Receive Interaction_Robot_Receive;
 
 
@@ -1426,11 +1426,11 @@ protected:
     Struct_Referee_Tx_Data_Interaction_Graphic_7 Interaction_Graphic_7;
     //画字符图形交互信息
     Struct_Referee_Tx_Data_Interaction_Graphic_String Interaction_Graphic_String;
-    //雷达发送小地图交互信息
+    //云台手发送的小地图交互信息
     Struct_Referee_Tx_Data_Interaction_Radar_Send Interaction_Radar_Send;
     //哨兵自主决策
     Struct_Sentry_cmd_t Sentry_cmd;
-    //哨兵发送雷达位置
+    //哨兵发送给雷达目标位置
     Struct_Sentry_To_Radar_t Sentry_To_Radar;
 
     //读写变量
@@ -1463,7 +1463,7 @@ void Class_Referee::Referee_UI_Packed_Data(T* __data)
 {
     uint16_t frame_length,data_len,cmd_id;
     
-    cmd_id = 0x0301;    //子内容ID
+    cmd_id = 0x0301;    //内容ID
     data_len = sizeof(T);      //字符操作数据长度
 	frame_length = frameheader_len + cmd_len + data_len + crc_len;   //数据帧长度	
 

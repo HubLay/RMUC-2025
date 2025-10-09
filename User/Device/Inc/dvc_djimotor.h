@@ -198,7 +198,7 @@ protected:
     float Omega_Max;
 
     //常量
-    float Zero_Position;//rad
+    float Zero_Position;            //rad 标定的正向角度
     //电机上电第一帧标志位
     uint8_t Start_Falg = 0;
     //一圈编码器刻度

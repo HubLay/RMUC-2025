@@ -47,6 +47,7 @@
 #include "usbd_cdc_if.h"
 #include "config.h"
 #include "iwdg.h"
+
 //#include "GraphicsSendTask.h"
 //#include "ui.h"
 //#include "dvc_GraphicsSendTask.h"
@@ -383,6 +384,7 @@ void IMUA_UART7_Callback(uint8_t *Buffer, uint16_t Length)
 {
     uint8_t Gyro_Data[28];
     int i = 0,j = 0;
+    //不知道为什么，数据最后一位换到最前边了
     for(i = 0; i < 28; i++)
     {
         if((Buffer[i] == 0x55 && Buffer[i+1] == 0x55) && Buffer[i+2] == 0x01)
@@ -419,7 +421,7 @@ void IMUA_UART7_Callback(uint8_t *Buffer, uint16_t Length)
 #ifdef GIMBAL
 void IMUB_USART1_Callback(uint8_t *Buffer, uint16_t Length)
 {
-    uint8_t Gyro_Data[28]; 
+    uint8_t Gyro_Data[28];
     int i = 0,j = 0;
     for(i = 0; i < 28; i++)
     {
@@ -534,15 +536,16 @@ void Task100us_TIM4_Callback()
 {
     #ifdef CHASSIS
         // static uint16_t Referee_Sand_Cnt = 0;
+        // Referee_Sand_Cnt++;
         // //暂无云台tim4任务
         // if(Referee_Sand_Cnt%10)
              //Task_Loop();
 
     #elif defined(GIMBAL)
         // 单给IMU消息开的定时器 ims
-        chariot.Gimbal.Boardc_BMI.TIM_Calculate_PeriodElapsedCallback();     
-        IMUA_UART7_Callback(UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Length);
-        IMUB_USART1_Callback(UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Length);
+        chariot.Gimbal.Boardc_BMI.TIM_Calculate_PeriodElapsedCallback();
+        // IMUA_UART7_Callback(UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Length);
+        // IMUB_USART1_Callback(UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Length);
 
         #ifdef DEBUG
             if (chariot.DR16.Get_DR16_Status() == DR16_Status_DISABLE)
@@ -573,18 +576,18 @@ void Task100us_TIM4_Callback()
  * @brief TIM5任务回调函数
  *
  */
+uint32_t Time_Tick = 0;
 extern Referee_Rx_A_t CAN3_Chassis_Rx_Data_A;
 void Task1ms_TIM5_Callback()
 {
     init_finished++;
     if(init_finished>2000)
     start_flag=1;
-
     /************ 判断设备在线状态判断 50ms (所有device:电机，遥控器，裁判系统等) ***************/
     
     chariot.TIM1msMod50_Alive_PeriodElapsedCallback();
     HAL_IWDG_Refresh(&hiwdg1);
-
+    Time_Tick ++;
     /****************************** 交互层回调函数 1ms *****************************************/
     if(start_flag==1)
     {
@@ -615,11 +618,13 @@ void Task1ms_TIM5_Callback()
             TIM_USB_PeriodElapsedCallback(&MiniPC_USB_Manage_Object);
 
             // 串口统一发送
+            #ifdef CHASSIS
             TIM_UART_PeriodElapsedCallback();
+            #endif
             mod5 = 0;
         }	 
         if(mod100 == 100)
-        {
+        {    
             #ifdef CHASSIS
             // 裁判系统发送
             chariot.Referee.TIM_UART_Tx_PeriodElapsedCallback();

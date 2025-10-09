@@ -49,6 +49,8 @@ struct IMU_Data
     float Omega_X;
     float Omega_Y;
     float Omega_Z;
+
+    float Filter_Pitch;
 };
 
 /**
@@ -279,6 +281,8 @@ public:
 
     IMU_Data IMU_Data_A;
     IMU_Data IMU_Data_B;
+    Class_Filter_Kalman IMU_A_Angle_Filter;
+    Class_Filter_Kalman IMU_B_Angle_Filter;
 
 protected:
     //初始化相关常量
@@ -311,8 +315,7 @@ protected:
     float True_Angle_Pitch_B = 0.0f;
     float True_Angle_Yaw_Main = 0.0f;
 
-    uint16_t A_Cruise_Flag = 0,B_Cruise_Flag = 0;
-    uint16_t A_Invert_Flag = 0,B_Invert_Flag = 0;
+    uint16_t A_Cruise_Flag = 0,B_Cruise_Flag = 0;                   //巡航状态标志位，正在处于巡航置1
 
     //读变量
 

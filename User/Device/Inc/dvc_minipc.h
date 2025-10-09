@@ -167,13 +167,14 @@ struct Struct_MiniPC_USB_Data
     uint8_t Data[50];
 } __attribute__((packed));
 /**
- * @brief 自瞄模式
+ * @brief 自瞄模式   识别到置1
  *
  */
 enum Enum_Auto_aim_Status : uint8_t
 {
     Auto_aim_Status_DISABLE = 0,
     Auto_aim_Status_ENABLE,
+    Auto_aim_Coordination_Enable,
 };
 /**
  * @brief 前哨站模式
@@ -261,12 +262,12 @@ struct Struct_MiniPC_Rx_Data
     int16_t Gimbal_Target_Y_B;                                 // 装甲板在云台坐标系的 y 坐标
     int16_t Gimbal_Target_Z_B;                                 // 装甲板在云台坐标系的 z 坐标
     Enum_MiniPC_Chassis_Control_Mode Chassis_Control_Mode; // 底盘控制模式 随动/小陀螺
-    uint8_t Control_Type_A; // 云台控制模式
-    uint8_t Control_Type_B; // 云台控制模式
-    uint8_t Device_Mode; //外设模式
-    uint32_t Sentry_cmd;
-    uint16_t Robot_Position_X;
-    uint16_t Robot_Position_Y;
+    uint8_t Control_Type_A; // 云台控制模式                 是否识别到目标标志位
+    uint8_t Control_Type_B; // 云台控制模式                 是否识别到目标标志位
+    uint8_t Device_Mode;    //外设模式超电的控制模式
+    uint32_t Sentry_cmd;                                    //向裁判系统发送的烧饼复活，买弹等的控制信息
+    uint16_t Robot_Position_X;                              //向裁判系统转发的烧饼目标路径点位信息
+    uint16_t Robot_Position_Y;                              //向裁判系统转发的烧饼目标路径点位信息
     uint16_t crc16;
 } __attribute__((packed));
 
@@ -326,11 +327,11 @@ struct Struct_MiniPC_Tx_Data
     uint16_t Projectile_allowance; // 允许发弹量
     uint16_t Remaining_Time;       // 比赛剩余时间
     uint8_t Color_Invincible_State;      // 敌对方无敌状态/自身颜色
-    uint16_t Robot_Position_X; //雷达发送位置X
-    uint16_t Robot_Position_Y; //雷达发送位置Y
+    uint16_t Robot_Position_X; //雷达发送的敌方位置X
+    uint16_t Robot_Position_Y; //雷达发送的敌方位置Y
     uint8_t Remaining_Energy;
     uint8_t Supercap_Proportion;
-    int16_t Target_Position_X;
+    int16_t Target_Position_X;          //云台手发送的目标点位
     int16_t Target_Position_Y;
     uint8_t Dart_Target;
     uint16_t crc16;
@@ -399,23 +400,23 @@ typedef __packed struct // 0x178
 
 typedef __packed struct // 0x198 
 {
-    uint16_t Hero_Position_X;
+    uint16_t Hero_Position_X;          //雷达发送的敌方机器人点位
     uint16_t Hero_Position_Y;
     uint16_t Sentry_Position_X;
     uint16_t Sentry_Position_Y;
 } Referee_Rx_D_t;
 
-typedef __packed struct // 0x197
+typedef __packed struct // 0x197   
 {
-    int16_t Self_Position_X;
+    int16_t Self_Position_X;            //雷达发送的敌方机器人点位
     int16_t Self_Position_Y;
     int16_t Bullet_Speed_A;
     int16_t Bullet_Speed_B;
 } Referee_Rx_E_t;
 
-typedef __packed struct // 0x196
+typedef __packed struct // 0x196   //雷达发送的敌方机器人点位
 {
-    uint16_t Infantry_3_Position_X;
+    uint16_t Infantry_3_Position_X;                         
     uint16_t Infantry_3_Position_Y;
     uint16_t Infantry_4_Position_X;
     uint16_t Infantry_4_Position_Y;
@@ -423,7 +424,7 @@ typedef __packed struct // 0x196
 
 typedef __packed struct // 0x191
 {
-    uint16_t Target_Position_X;
+    uint16_t Target_Position_X;                         //云台手发送的目标点位
     uint16_t Target_Position_Y;
     uint32_t Reserved;
 } Referee_Rx_G_t;
@@ -463,7 +464,8 @@ public:
     inline float Get_Now_Roll_Angle_B();
     inline float Get_Now_Relative_Angle();
     inline float Get_Gimbal_Angle_Yaw();
-    inline float Get_Rx_Angle_Yaw_Main();
+    inline float Get_Rx_Target_Angle_Yaw_Main();
+    inline float Get_Rx_Target_Omega_Yaw_Main();
 
     inline uint8_t Get_Target_Invincible_State();
     inline Enum_MiniPC_Chassis_Control_Mode Get_Chassis_Control_Mode();
@@ -577,7 +579,8 @@ protected:
 	float Rx_Angle_Pitch_B;
 	float Rx_Angle_Yaw_B;
 
-    float Rx_Angle_Yaw_Main;
+    float Rx_Target_Angle_Yaw_Main;
+    float Rx_Target_Omega_Yaw_Main;
 
     const float g = 9.8; // 重力加速度
     const float bullet_v = 28.0; // 子弹速度
@@ -656,14 +659,20 @@ float Class_MiniPC::Get_Rx_Yaw_Angle_B()
     return (Rx_Angle_Yaw_B);
 }
 /**
- * @brief 获取大yaw
+ * @brief 获取大yaw目标角度
  *
  * @return 
  */
-float Class_MiniPC::Get_Rx_Angle_Yaw_Main()
+float Class_MiniPC::Get_Rx_Target_Angle_Yaw_Main()
 {
-    return (Rx_Angle_Yaw_Main);
+    return (Rx_Target_Angle_Yaw_Main);
 }
+
+float Class_MiniPC::Get_Rx_Target_Omega_Yaw_Main()
+{
+    return (Rx_Target_Omega_Yaw_Main);
+}
+
 /**
  * @brief 获取迷你主机状态
  *
@@ -737,7 +746,7 @@ Enum_MiniPC_Chassis_Control_Mode Class_MiniPC::Get_Chassis_Control_Mode()
  */
 Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_A()
 {
-    return Enum_Auto_aim_Status(Data_NUC_To_MCU.Control_Type_A & 0x01);
+    return Enum_Auto_aim_Status(Data_NUC_To_MCU.Control_Type_A & 0x03);
 }
 /**
  * @brief 获取右头自瞄模式
@@ -746,7 +755,7 @@ Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_A()
  */
 Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_B()
 {
-    return Enum_Auto_aim_Status(Data_NUC_To_MCU.Control_Type_B & 0x01);
+    return Enum_Auto_aim_Status(Data_NUC_To_MCU.Control_Type_B & 0x03);
 }
 /**
  * @brief 获取左头前哨站模式
@@ -755,7 +764,7 @@ Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_B()
  */
 Enum_Outpost_Mode Class_MiniPC::Get_Outpost_Mode_A()
 {
-    return Enum_Outpost_Mode(Data_NUC_To_MCU.Control_Type_A >> 1 & 0x01);
+    return Enum_Outpost_Mode(Data_NUC_To_MCU.Control_Type_A >> 4 & 0x01);
 }
 /**
  * @brief 获取右头前哨站模式
@@ -764,7 +773,7 @@ Enum_Outpost_Mode Class_MiniPC::Get_Outpost_Mode_A()
  */
 Enum_Outpost_Mode Class_MiniPC::Get_Outpost_Mode_B()
 {
-    return Enum_Outpost_Mode(Data_NUC_To_MCU.Control_Type_B >> 1 & 0x01);
+    return Enum_Outpost_Mode(Data_NUC_To_MCU.Control_Type_B >> 4 & 0x01);
 }
 /**
  * @brief 获取超电模式
@@ -825,9 +834,9 @@ void Class_MiniPC::Set_Gimbal_Now_Roll_Angle_A(float __Gimbal_Now_Roll_Angle)
 }
 
 /**
- * @brief 设定云台当前角度roll
+ * @brief 
  *
- * @param __Gimbal_Now_Roll_Angle 云台当前角度roll
+ * @param __Gimbal_Now_Roll_Angle 
  */
 void Class_MiniPC::Set_Gimbal_Now_Relative_Angle(float __Gimbal_Now_Relative_Angle)
 {

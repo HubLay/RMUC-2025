@@ -365,8 +365,6 @@ void Class_Tricycle_Chassis::Speed_Resolution(){
  */
 void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Status __Sprint_Status)
 {
-    
-
     //斜坡函数计算用于速度解算初始值获取
     Slope_Velocity_X.Set_Target(Target_Velocity_X);
     Slope_Velocity_X.TIM_Calculate_PeriodElapsedCallback();
@@ -388,8 +386,16 @@ void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Sta
     /*************************功率限制策略*******************************/
     //Power_Limit_Update();
     Power_Limit.Set_Motor(Motor_Wheel);//添加四个电机的控制电流和当前转速
-    Power_Limit.Set_Power_Limit(Referee->Get_Chassis_Power_Max());
-    Power_Limit.Set_Chassis_Buffer(Referee->Get_Chassis_Energy_Buffer());
+    if(Referee->Get_Referee_Status() == Referee_Status_DISABLE){
+        Power_Limit.Set_Power_Limit(100.0f);
+        Power_Limit.Set_Chassis_Buffer(30.0f);                             //保证Buffer_Power为0
+    }
+    else{
+        Power_Limit.Set_Power_Limit(Referee->Get_Chassis_Power_Max());
+        Power_Limit.Set_Chassis_Buffer(Referee->Get_Chassis_Energy_Buffer());
+    }
+    
+    
     Power_Limit.TIM_Adjust_PeriodElapsedCallback(Motor_Wheel);
     #endif
 }

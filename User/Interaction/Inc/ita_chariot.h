@@ -245,9 +245,9 @@ protected:
         float DR16_Keyboard_Chassis_Speed_Resolution_Big = 0.01f;
 
         //DR16云台yaw灵敏度系数(0.001PI表示yaw速度最大时为1rad/s)
-        float DR16_Yaw_Angle_Resolution = 0.008f * PI * 57.29577951308232;
+        float DR16_Yaw_Angle_Resolution = 0.012f * PI * 57.29577951308232;
         //DR16云台pitch灵敏度系数(0.001PI表示pitch速度最大时为1rad/s)
-        float DR16_Pitch_Angle_Resolution = 0.003f * PI * 57.29577951308232;
+        float DR16_Pitch_Angle_Resolution = 0.006f * PI * 57.29577951308232;
 
         //DR16云台yaw灵敏度系数(0.001PI表示yaw速度最大时为1rad/s)
         float DR16_Yaw_Resolution = 0.003f * PI;
@@ -284,8 +284,6 @@ protected:
         Enum_Gimbal_Control_Type Pre_Gimbal_Control_Type = Gimbal_Control_Type_NORMAL;
         Enum_Booster_Control_Type Pre_Booster_Control_Type = Booster_Control_Type_CEASEFIRE;
 
-        //单发连发标志位
-        uint8_t Shoot_Flag = 0;
         //DR16控制数据来源
         Enum_DR16_Control_Type DR16_Control_Type = DR16_Control_Type_REMOTE;
         //内部函数

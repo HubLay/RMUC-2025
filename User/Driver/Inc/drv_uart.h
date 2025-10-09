@@ -66,6 +66,7 @@ struct Struct_UART_Manage_Object
 //extern UART_HandleTypeDef huart6;
 ////extern UART_HandleTypeDef huart7;
 extern DMA_HandleTypeDef hdma_uart5_rx;
+extern DMA_HandleTypeDef hdma_uart7_rx;
 
 extern struct Struct_UART_Manage_Object UART1_Manage_Object;
 extern struct Struct_UART_Manage_Object UART2_Manage_Object;

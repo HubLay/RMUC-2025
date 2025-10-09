@@ -4,10 +4,6 @@
             "path": "."
         }
     ],
-    "settings": {
-        "files.associations": {
-            "arm_math.h": "c"
-        }
-    },
+    "settings": {},
     "extensions": {}
 }

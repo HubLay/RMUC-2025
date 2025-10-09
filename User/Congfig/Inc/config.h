@@ -17,11 +17,11 @@
 /* Exported macros -----------------------------------------------------------*/
 
 //底盘或云台状态
-// #define CHASSIS
+//#define CHASSIS
 #define GIMBAL
 
 //调试或比赛状态
-#define DEBUG
+//#define DEBUG
 
 //功率控制相关
 #define POWER_CONTROL 1 //启用功率控制

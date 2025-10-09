@@ -14,6 +14,7 @@
 #include "drv_uart.h"
 #include "string.h"
 #include "dvc_dwt.h"
+#include "stm32h7xx_hal_dma.h"
 /* Private macros ------------------------------------------------------------*/
 
 /* Private types -------------------------------------------------------------*/
@@ -131,7 +132,7 @@ uint8_t UART_Send_Data(UART_HandleTypeDef *huart, uint8_t *Data, uint16_t Length
 void TIM_UART_PeriodElapsedCallback()
 {
     //上位机通讯
-    UART_Send_Data(&huart8, UART8_Manage_Object.Tx_Buffer, 56);
+    //UART_Send_Data(&huart8, UART8_Manage_Object.Tx_Buffer, 56);
 }
 
 
@@ -150,28 +151,31 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (huart->Instance == USART1)
     {
         UART1_Manage_Object.Rx_Length = Size;
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Buffer_Length*2);
-        // if( UART1_Manage_Object.Rx_Length<=UART1_Manage_Object.Rx_Buffer_Length)
-        //     UART1_Manage_Object.Callback_Function(UART1_Manage_Object.Rx_Buffer, Size);
+        if( UART1_Manage_Object.Rx_Length<=UART1_Manage_Object.Rx_Buffer_Length)
+            UART1_Manage_Object.Callback_Function(UART1_Manage_Object.Rx_Buffer, Size);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Buffer_Length);
+        
         // else
         // memset( UART1_Manage_Object.Rx_Buffer, 0, UART1_Manage_Object.Rx_Buffer_Length);
-
     }
     else if (huart->Instance == UART5)
     {
         UART5_Manage_Object.Rx_Length = Size;              
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART5_Manage_Object.Rx_Buffer, UART5_Manage_Object.Rx_Buffer_Length*2);
+        
         if( UART5_Manage_Object.Rx_Length<=UART5_Manage_Object.Rx_Buffer_Length)
             UART5_Manage_Object.Callback_Function(UART5_Manage_Object.Rx_Buffer, Size);
-        else
-        memset( UART5_Manage_Object.Rx_Buffer, 0, UART5_Manage_Object.Rx_Buffer_Length);
+            
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART5_Manage_Object.Rx_Buffer, UART5_Manage_Object.Rx_Buffer_Length*2);
+//        else
+//						memset( UART5_Manage_Object.Rx_Buffer, 0, UART5_Manage_Object.Rx_Buffer_Length);
     }
     else if (huart->Instance == UART7)
     {
         UART7_Manage_Object.Rx_Length = Size;
-        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Buffer_Length*2);
-        // if( UART7_Manage_Object.Rx_Length<=UART7_Manage_Object.Rx_Buffer_Length)
-        //     UART7_Manage_Object.Callback_Function(UART7_Manage_Object.Rx_Buffer, Size);
+        if( UART7_Manage_Object.Rx_Length<=UART7_Manage_Object.Rx_Buffer_Length)
+            UART7_Manage_Object.Callback_Function(UART7_Manage_Object.Rx_Buffer, Size);
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Buffer_Length);
+        
         // else
         // memset( UART7_Manage_Object.Rx_Buffer, 0, UART7_Manage_Object.Rx_Buffer_Length);
     }
@@ -209,12 +213,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART1)
     {
-        UART1_Manage_Object.Rx_Length = 28;
-        if( UART1_Manage_Object.Rx_Length<=UART1_Manage_Object.Rx_Buffer_Length)
-            UART1_Manage_Object.Callback_Function(UART1_Manage_Object.Rx_Buffer, 28);
-        else
-        memset( UART1_Manage_Object.Rx_Buffer, 0, UART1_Manage_Object.Rx_Buffer_Length);
-        HAL_UART_Receive_IT(huart, UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Buffer_Length);//再开启接收中断
+        // UART1_Manage_Object.Rx_Length = 28;
+        // if( UART1_Manage_Object.Rx_Length<=UART1_Manage_Object.Rx_Buffer_Length)
+        //     UART1_Manage_Object.Callback_Function(UART1_Manage_Object.Rx_Buffer, 28);
+        // else
+        // memset( UART1_Manage_Object.Rx_Buffer, 0, UART1_Manage_Object.Rx_Buffer_Length);
+        // HAL_UART_Receive_IT(huart, UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Buffer_Length);//再开启接收中断
+    }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
+    //huart7开始运行前几次会进入错误，要重新使能
+    if(huart == &huart7){
+        HAL_UART_DeInit(huart);
+        MX_UART7_Init();
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Buffer_Length);
+    }
+    else if(huart == &huart1){
+        HAL_UART_DeInit(huart);
+        MX_USART1_UART_Init();
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Buffer_Length);
     }
 }
 

@@ -370,15 +370,17 @@ void Class_Referee::TIM_UART_Tx_PeriodElapsedCallback()
     Sentry_To_Radar.Robot_Position_X = CAN_Referee_Rx_Data.Robot_Position_X;
     Sentry_To_Radar.Robot_Position_Y = CAN_Referee_Rx_Data.Robot_Position_Y;
     Referee_UI_Packed_Data(&Sentry_To_Radar);
-    HAL_UART_Transmit(UART_Manage_Object->UART_Handler, UART_Manage_Object->Tx_Buffer, UART_Manage_Object->Tx_Length,10);
+    HAL_UART_Transmit_IT(UART_Manage_Object->UART_Handler, UART_Manage_Object->Tx_Buffer, UART_Manage_Object->Tx_Length);
 }
+
 void Class_Referee::Sentry_Auto_cmd_Transmit()
 {
     //哨兵自主决策
     Sentry_cmd.Sender = Get_ID();
     Sentry_cmd.sentry_cmd = CAN_Referee_Rx_Data.Sentry_cmd;
     Referee_UI_Packed_Data(&Sentry_cmd);
-    HAL_UART_Transmit(UART_Manage_Object->UART_Handler, UART_Manage_Object->Tx_Buffer, UART_Manage_Object->Tx_Length,10);
+    //没开DMA，这样方便点
+    HAL_UART_Transmit_IT(UART_Manage_Object->UART_Handler, UART_Manage_Object->Tx_Buffer, UART_Manage_Object->Tx_Length);
 }
 
 unsigned char Get_CRC8_Check_Sum(unsigned  char  *pchMessage,unsigned  int dwLength,unsigned char ucCRC8)
