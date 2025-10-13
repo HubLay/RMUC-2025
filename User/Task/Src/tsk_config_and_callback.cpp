@@ -380,8 +380,10 @@ void Device_SPI2_Callback(uint8_t *Tx_Buffer, uint8_t *Rx_Buffer, uint16_t Lengt
  * @param Length 长度
  */
 #ifdef GIMBAL
+volatile uint32_t IMU_A_Flag = 0;
 void IMUA_UART7_Callback(uint8_t *Buffer, uint16_t Length)
 {
+    IMU_A_Flag ++;
     uint8_t Gyro_Data[28];
     int i = 0,j = 0;
     //不知道为什么，数据最后一位换到最前边了
@@ -419,8 +421,10 @@ void IMUA_UART7_Callback(uint8_t *Buffer, uint16_t Length)
  */
 
 #ifdef GIMBAL
+volatile uint32_t IMU_B_Flag = 0;
 void IMUB_USART1_Callback(uint8_t *Buffer, uint16_t Length)
 {
+    IMU_B_Flag ++;
     uint8_t Gyro_Data[28];
     int i = 0,j = 0;
     for(i = 0; i < 28; i++)
@@ -544,8 +548,6 @@ void Task100us_TIM4_Callback()
     #elif defined(GIMBAL)
         // 单给IMU消息开的定时器 ims
         chariot.Gimbal.Boardc_BMI.TIM_Calculate_PeriodElapsedCallback();
-        // IMUA_UART7_Callback(UART7_Manage_Object.Rx_Buffer, UART7_Manage_Object.Rx_Length);
-        // IMUB_USART1_Callback(UART1_Manage_Object.Rx_Buffer, UART1_Manage_Object.Rx_Length);
 
         #ifdef DEBUG
             if (chariot.DR16.Get_DR16_Status() == DR16_Status_DISABLE)

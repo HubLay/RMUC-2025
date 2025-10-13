@@ -57,6 +57,8 @@ void Class_MiniPC::Data_Process(Enum_MiniPC_Data_Source Data_Source)
     //自瞄解算
     Auto_aim(float(Data_NUC_To_MCU.Gimbal_Target_X_A / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Y_A / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Z_A / 100.f), &Rx_Angle_Yaw_A, &Rx_Angle_Pitch_A, &Distance_A, Booster_Type_A);
     Auto_aim(float(Data_NUC_To_MCU.Gimbal_Target_X_B / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Y_B / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Z_B / 100.f), &Rx_Angle_Yaw_B, &Rx_Angle_Pitch_B, &Distance_B, Booster_Type_B);
+    Math_Constrain(&Rx_Angle_Pitch_A, -25.0f, 16.0f);
+    Math_Constrain(&Rx_Angle_Pitch_B, -25.0f, 16.0f);
     Rx_Target_Omega_Yaw_Main = (float)Data_NUC_To_MCU.Gimbal_Angular_Velocity_Yaw_Main / 100.0f;
   }
   else if (Data_Source == UART)
@@ -96,10 +98,10 @@ void Class_MiniPC::Output()
   Data_MCU_To_NUC.Self_blood                     = CAN3_Chassis_Rx_Data_A.self_blood;
   Data_MCU_To_NUC.Self_Outpost_HP                = CAN3_Chassis_Rx_Data_A.self_outpost_HP;
   Data_MCU_To_NUC.Remaining_Time                 = CAN3_Chassis_Rx_Data_A.remaining_time;
-  Data_MCU_To_NUC.Oppo_Outpost_HP                = CAN3_Chassis_Rx_Data_B.oppo_outpost_HP;
-  Data_MCU_To_NUC.Self_Base_HP                   = CAN3_Chassis_Rx_Data_B.self_base_HP;   
+  Data_MCU_To_NUC.Oppo_Outpost_HP                = 1500;//CAN3_Chassis_Rx_Data_B.oppo_outpost_HP;
+  Data_MCU_To_NUC.Self_Base_HP                   = 50;//CAN3_Chassis_Rx_Data_B.self_base_HP;   
   Data_MCU_To_NUC.Color_Invincible_State         = CAN3_Chassis_Rx_Data_A.color_invincible_state << 7 | CAN3_Chassis_Rx_Data_A.color_invincible_state << 5;
-  Data_MCU_To_NUC.Projectile_allowance           = CAN3_Chassis_Rx_Data_B.projectile_allowance_17mm;
+  Data_MCU_To_NUC.Projectile_allowance           = 500;//CAN3_Chassis_Rx_Data_B.projectile_allowance_17mm;
   Data_MCU_To_NUC.Remaining_Energy               = CAN3_Chassis_Rx_Data_C.Remaining_Energy;
   Data_MCU_To_NUC.Supercap_Proportion            = CAN3_Chassis_Rx_Data_C.Supercap_Proportion;
   Data_MCU_To_NUC.Target_Position_X              = CAN3_Chassis_Rx_Data_G.Target_Position_X;

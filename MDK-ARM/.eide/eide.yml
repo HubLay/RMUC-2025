@@ -64,6 +64,8 @@ virtualFolder:
         - path: ../User/Algorithm/Src/PID.cpp
         - path: ../User/Algorithm/Src/QuaternionEKF.cpp
         - path: ../User/Algorithm/Src/user_lib.cpp
+        - path: ../User/Algorithm/Src/alg_LESO.cpp
+        - path: ../User/Algorithm/Src/alg_new_power_limit.cpp
       folders: []
     - name: Application
       files: []
@@ -186,7 +188,8 @@ targets:
         - .cmsis/include
         - RTE/_Sentry
       libList: []
-    excludeList: []
+    excludeList:
+      - <virtual_root>/Algorithm/alg_power_limit.cpp
     toolchain: AC6
     toolchainConfigMap:
       AC6:

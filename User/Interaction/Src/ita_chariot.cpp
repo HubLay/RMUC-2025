@@ -608,9 +608,9 @@ void Class_Chariot::Control_Gimbal()
     }
 
     //角度限幅
-    if(tmp_gimbal_pitch_a > 18.0f)tmp_gimbal_pitch_a = 18.0f;
+    if(tmp_gimbal_pitch_a > 16.0f)tmp_gimbal_pitch_a = 16.0f;
     if(tmp_gimbal_pitch_a < -25.0f)tmp_gimbal_pitch_a = -25.0f;
-    if(tmp_gimbal_pitch_b > 18.0f)tmp_gimbal_pitch_b = 18.0f;
+    if(tmp_gimbal_pitch_b > 16.0f)tmp_gimbal_pitch_b = 16.0f;
     if(tmp_gimbal_pitch_b < -25.0f)tmp_gimbal_pitch_b = -25.0f;
 
     if (DR16.Get_Left_Switch() == DR16_Switch_Status_DOWN) // 左下 上位机
@@ -835,7 +835,6 @@ void Class_Chariot::TIM1msMod50_Alive_PeriodElapsedCallback()
         mod50_mod3++;
         //TIM_Unline_Protect_PeriodElapsedCallback();
         #ifdef CHASSIS
-            Referee.TIM1msMod50_Alive_PeriodElapsedCallback();
             Chassis.Supercap.TIM_Alive_PeriodElapsedCallback();
             for (auto& wheel : Chassis.Motor_Wheel) {
                 wheel.TIM_Alive_PeriodElapsedCallback();
@@ -845,6 +844,7 @@ void Class_Chariot::TIM1msMod50_Alive_PeriodElapsedCallback()
             }          
             if(mod50_mod3%3 == 0)
             {
+                Referee.TIM1msMod50_Alive_PeriodElapsedCallback();
                 TIM1msMod50_Gimbal_Communicate_Alive_PeriodElapsedCallback();
                 mod50_mod3 = 0;
             }

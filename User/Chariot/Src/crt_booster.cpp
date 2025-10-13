@@ -55,7 +55,7 @@ void Class_FSM_Heat_Detect::Reload_TIM_Status_PeriodElapsedCallback()
     {
         //发射嫌疑状态
 
-        if (Status[Now_Status_Serial].Time >= 15)
+        if (Status[Now_Status_Serial].Time >= 22)
         {
             //长时间大扭矩->确认是发射了
             Set_Status(2);

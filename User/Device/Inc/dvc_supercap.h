@@ -110,11 +110,11 @@ public:
     inline Enum_Supercap_Status Get_Supercap_Status();
     inline float Get_Stored_Energy();
     inline float Get_Now_Voltage();
-    inline int16_t Get_Chassis_Power();
+    inline float Get_Chassis_Power();
     inline Enum_Control_Status Get_Control_Status();
     inline Enum_Warning_Status Get_Warning_Status();
     inline Enum_Supercap_Mode Get_Supercap_Mode();
-    inline uint16_t Get_Buffer_Power();
+    inline float Get_Buffer_Power();
     inline uint8_t Get_Supercap_Proportion();
     
 
@@ -172,6 +172,8 @@ protected:
     float Limit_Power = 0.0f;
 
     //读写变量
+    float Chassis_Power = 0.0f;
+    float Buffer_Power = 0.0f;
 
     //内部函数
 
@@ -224,9 +226,9 @@ float Class_Supercap::Get_Stored_Energy()
     return (Supercap_Data.Stored_Energy);
 }
 
-int16_t Class_Supercap::Get_Chassis_Power()
+float Class_Supercap::Get_Chassis_Power()
 {
-    return (CAN_Supercap_Rx_Data_Normal.Chassis_Power);
+    return (Chassis_Power);
 }
 
 // /**
@@ -252,9 +254,9 @@ Enum_Supercap_Mode Class_Supercap::Get_Supercap_Mode()
 {
     return(Supercap_Mode);
 }
-uint16_t Class_Supercap::Get_Buffer_Power()
+float Class_Supercap::Get_Buffer_Power()
 {
-    return(CAN_Supercap_Rx_Data_Normal.Buffer_Power);
+    return Buffer_Power;
 }
 uint8_t Class_Supercap::Get_Supercap_Proportion()
 {

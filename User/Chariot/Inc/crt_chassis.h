@@ -23,10 +23,12 @@
 #include "alg_slope.h"
 #include "dvc_referee.h"
 #include "dvc_djimotor.h"
-#include "alg_power_limit.h"
 #include "dvc_supercap.h"
 #include "config.h"
 #include "dvc_minipc.h"
+#include "alg_new_power_limit.h"
+//#include "alg_power_limit.h"
+
 /* Exported macros -----------------------------------------------------------*/
 #define wheel_diameter 12.000000f   // 
 #define half_width 10.0f           // 25.000000f		x方向为宽
@@ -99,7 +101,7 @@ public:
       
     //功率限制
     Class_Power_Limit Power_Limit;
-    //Struct_Power_Management Power_Management;
+    Struct_Power_Management Power_Management;
     
     //裁判系统
     Class_Referee *Referee;
@@ -127,7 +129,7 @@ public:
     inline float Get_Target_Omega();
     inline float Get_Spin_Omega();
     inline float Get_Relative_Angle();
-    inline Enum_Supercap_Mode Get_Supercap_Mode();
+    inline Enum_Supercap_Mode Get_Supercap_Control_Mode();
 
     inline void Set_Chassis_Control_Type(Enum_Chassis_Control_Type __Chassis_Control_Type);
     inline void Set_Target_Velocity_X(float __Target_Velocity_X);
@@ -384,7 +386,7 @@ float Class_Tricycle_Chassis::Get_Relative_Angle()
 {
     return (Relative_Angle);
 }
-Enum_Supercap_Mode Class_Tricycle_Chassis::Get_Supercap_Mode()
+Enum_Supercap_Mode Class_Tricycle_Chassis::Get_Supercap_Control_Mode()
 {
     return (Supercap_Mode);
 }

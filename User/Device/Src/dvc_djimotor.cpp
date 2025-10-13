@@ -443,6 +443,24 @@ void Class_DJI_Motor_GM6020::TIM_PID_PeriodElapsedCallback()
     Output();
 }
 
+volatile float True_Out;
+void Class_DJI_Motor_GM6020::Compensite_Control()
+{
+    float tmp_Out = Out + Compensite_Out;
+
+    if(tmp_Out > Output_Max){
+        tmp_Out = Output_Max;
+    }
+    else if(tmp_Out < -Output_Max){
+        tmp_Out = -Output_Max;
+    }
+
+    Set_Out(tmp_Out);
+    Output();
+
+    True_Out = Out;
+}
+
 /**
  * @brief 电机初始化
  *

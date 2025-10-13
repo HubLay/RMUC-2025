@@ -16,7 +16,6 @@
 
 #include "alg_pid.h"
 #include "drv_can.h"
-#include "alg_power_limit.h"
 #include "dvc_dwt.h"
 #include "alg_filter.h"
 
@@ -165,11 +164,13 @@ public:
     inline void Set_Transform_Omega(float __Transform_Omega);
     inline void Set_Transform_Torque(float __Transform_Torque);
     inline void Set_Now_Omega_Angle(float __Now_Omega_Angle);
+    inline void Set_Compensite_Out(float __Compensite_Out);
 
     void CAN_RxCpltCallback(uint8_t *Rx_Data);
     void TIM_Alive_PeriodElapsedCallback();
     void TIM_PID_PeriodElapsedCallback();
 
+    void Compensite_Control();
 
     float Yaw;
     float init_Yaw;
@@ -212,6 +213,8 @@ protected:
     float Transform_Omega = 0.0f;
     float Transform_Torque = 0.0f;
     float Transform_Target_Omega = 0.0f;
+
+    float Compensite_Out;
     
     //当前时刻的电机接收flag
     uint32_t Flag = 0;
@@ -370,6 +373,7 @@ public:
     
     //功率限制友元函数
     friend class Class_Power_Limit;
+    friend class Class_Tricycle_Chassis;
 
     void Init(FDCAN_HandleTypeDef *__hcan, Enum_DJI_Motor_ID __CAN_ID, Enum_DJI_Motor_Control_Method __Control_Method = DJI_Motor_Control_Method_OMEGA, float __Gearbox_Rate = 13.933f, float __Torque_Max = 16384.0f);
 
@@ -387,6 +391,7 @@ public:
     inline float Get_Target_Omega_Radian();
     inline float Get_Target_Omega_Angle();
     inline float Get_Target_Torque();
+    inline float Get_Gearbox_Rate();
     inline float Get_Out();
 
     inline void Set_DJI_Motor_Control_Method(Enum_DJI_Motor_Control_Method __Control_Method);
@@ -754,6 +759,11 @@ void Class_DJI_Motor_GM6020::Set_Now_Omega_Angle(float __Now_Omega_Angle)
 {
     Data.Now_Omega_Angle = __Now_Omega_Angle;
 }
+
+inline void Class_DJI_Motor_GM6020::Set_Compensite_Out(float __Compensite_Out)
+{
+    Compensite_Out = __Compensite_Out;
+}
 /**
  * @brief 获取最大输出电流
  *
@@ -1114,6 +1124,16 @@ float Class_DJI_Motor_C620::Get_Target_Omega_Angle()
 float Class_DJI_Motor_C620::Get_Target_Torque()
 {
     return (Target_Torque);
+}
+
+/**
+ * @brief 获取电机的减速比
+ *
+ * @return float 
+ */
+inline float Class_DJI_Motor_C620::Get_Gearbox_Rate()
+{
+    return Gearbox_Rate;
 }
 
 /**

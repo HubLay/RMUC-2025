@@ -104,6 +104,8 @@ void Class_Supercap::Data_Process()
     switch(CAN_Manage_Object->Rx_Buffer.Header.Identifier){
         case (0x67):{
             memcpy(&CAN_Supercap_Rx_Data_Normal, CAN_Manage_Object->Rx_Buffer.Data, sizeof(Supercap_Rx_Data_A));
+            Chassis_Power = CAN_Supercap_Rx_Data_Normal.Chassis_Power / 10.0f;
+            Buffer_Power  = CAN_Supercap_Rx_Data_Normal.Buffer_Power  / 100.0f;
             break;
         }
         case (0x55):{
@@ -119,16 +121,15 @@ void Class_Supercap::Data_Process()
  */
 void Class_Supercap::Output()
 {
-    if(Get_Supercap_Mode() == Supercap_ENABLE)
-    {
-        Set_Working_Status(Working_Status_ON);
-    }
-    else
-    {
-        Set_Working_Status(Working_Status_OFF);
-    }
-    // Set_Working_Status(Working_Status_ON);
-    // Set_Working_Status(Working_Status_OFF);
+    // if(Get_Supercap_Mode() == Supercap_ENABLE)
+    // {
+    //     Set_Working_Status(Working_Status_ON);
+    // }
+    // else
+    // {
+    //     Set_Working_Status(Working_Status_OFF);
+    // }
+    Set_Working_Status(Working_Status_ON);                      //超电一直开启
     memcpy(CAN_Tx_Data, &Supercap_Tx_Data, sizeof(Struct_Supercap_Tx_Data));
 }
 /**
@@ -161,12 +162,7 @@ void Class_Supercap::Output_UART()
  */
 void Class_Supercap::Data_Process_UART()
 {
-    //数据处理过程
-    if(UART_Manage_Object->Rx_Buffer[0]!='*' && UART_Manage_Object->Rx_Buffer[1]!=12 && UART_Manage_Object->Rx_Buffer[10]!=';') return;
-    else
-    {
-        Supercap_Data.Stored_Energy = (float)(UART_Manage_Object->Rx_Buffer[4]/10.0f);
-    }
+
 }
 
 

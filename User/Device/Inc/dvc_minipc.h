@@ -268,6 +268,7 @@ struct Struct_MiniPC_Rx_Data
     uint32_t Sentry_cmd;                                    //向裁判系统发送的烧饼复活，买弹等的控制信息
     uint16_t Robot_Position_X;                              //向裁判系统转发的烧饼目标路径点位信息
     uint16_t Robot_Position_Y;                              //向裁判系统转发的烧饼目标路径点位信息
+    uint8_t Angle_Range_Control;                                    //角度限幅控制
     uint16_t crc16;
 } __attribute__((packed));
 
@@ -468,6 +469,7 @@ public:
     inline float Get_Rx_Target_Omega_Yaw_Main();
 
     inline uint8_t Get_Target_Invincible_State();
+    inline uint8_t Get_Angle_Range_Control_Mode();
     inline Enum_MiniPC_Chassis_Control_Mode Get_Chassis_Control_Mode();
     inline Enum_MiniPC_Gimbal_Control_Mode Get_Gimbal_Control_Mode();
     inline Enum_Auto_aim_Status Get_Auto_aim_Status_A();
@@ -730,6 +732,17 @@ float Class_MiniPC::Get_Gimbal_Angle_Yaw()
 {
     return (Now_Angle_Yaw);
 }
+
+/**
+ * @brief 获取云台角度限幅的控制方式
+ *
+ * @return
+ */
+inline uint8_t Class_MiniPC::Get_Angle_Range_Control_Mode()
+{
+  return (Data_NUC_To_MCU.Angle_Range_Control);
+}
+
 /**
  * @brief 获取底盘移动控制模式
  *

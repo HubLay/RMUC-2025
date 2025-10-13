@@ -565,11 +565,6 @@
               <FilePath>..\User\Algorithm\Src\alg_pid.cpp</FilePath>
             </File>
             <File>
-              <FileName>alg_power_limit.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\User\Algorithm\Src\alg_power_limit.cpp</FilePath>
-            </File>
-            <File>
               <FileName>alg_slope.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\User\Algorithm\Src\alg_slope.cpp</FilePath>
@@ -593,6 +588,16 @@
               <FileName>user_lib.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\User\Algorithm\Src\user_lib.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>alg_LESO.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\User\Algorithm\Src\alg_LESO.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>alg_new_power_limit.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\User\Algorithm\Src\alg_new_power_limit.cpp</FilePath>
             </File>
           </Files>
         </Group>

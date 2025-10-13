@@ -43,19 +43,19 @@ void Class_Gimbal::Init()
     Motor_Yaw_B.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Yaw_B.Get_Output_Max(), Motor_Yaw_B.Get_Output_Max());
     Motor_Yaw_B.Init(&hfdcan1, DJI_Motor_ID_0x205, DJI_Motor_Control_Method_ANGLE, 2048);
 
-    Motor_Main_Yaw.PID_Angle.Init(0.18f, 0.0f, 0.0f, 0.0f, 3, 15);
-    Motor_Main_Yaw.PID_Omega.Init(1000.0f, 5.0f, 0.0f, 0.0f, 400.0f, 2048.0f);
+    Motor_Main_Yaw.PID_Angle.Init(0.15f, 0.0f, 0.0002f, 0.0f, 3, 15);
+    Motor_Main_Yaw.PID_Omega.Init(1700.0f, 5.0f, 0.0f, 0.0f, 400.0f, 2048.0f);
     Motor_Main_Yaw.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Main_Yaw.Get_Output_Max(), Motor_Main_Yaw.Get_Output_Max());
     Motor_Main_Yaw.Init(&hfdcan3, LK_Motor_ID_0x141, LK_Motor_Control_Method_ANGLE, 2048);
     
     // pitch轴电机
-    Motor_Pitch_A.PID_Angle.Init(22.f, 0.0f, 0.001f, 0.0f, 2.f, 650.f);
-    Motor_Pitch_A.PID_Omega.Init(90.0f, 20.0f, 0.0f, 0.0f, 6000, Motor_Pitch_A.Get_Output_Max(),0.f,0.f,40.f);
+    Motor_Pitch_A.PID_Angle.Init(18.f, 0.0f, 0.005f, 0.0f, 2.f, 650.f);
+    Motor_Pitch_A.PID_Omega.Init(110.0f, 1000.0f, 0.0f, 0.0f, 10000, Motor_Pitch_A.Get_Output_Max(),0.f,0.f,0.f);
     Motor_Pitch_A.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Pitch_A.Get_Output_Max(), Motor_Pitch_A.Get_Output_Max());
     Motor_Pitch_A.Init(&hfdcan2, DJI_Motor_ID_0x206, DJI_Motor_Control_Method_ANGLE, 3413);
 
-    Motor_Pitch_B.PID_Angle.Init(23.f, 0.0f, 0.001f, 0.0f, 2.f, 650.f);
-    Motor_Pitch_B.PID_Omega.Init(100.0f, 140.0f, 0.0f, 0.0f, 6000, Motor_Pitch_B.Get_Output_Max(),0.f,0.f,40.f);
+    Motor_Pitch_B.PID_Angle.Init(22.f, 0.0f, 0.005f, 0.0f, 2.f, 650.f);
+    Motor_Pitch_B.PID_Omega.Init(130.0f, 1000.0f, 0.0f, 0.0f, 10000, Motor_Pitch_B.Get_Output_Max(),0.f,0.f,0.f);
     Motor_Pitch_B.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Pitch_B.Get_Output_Max(), Motor_Pitch_B.Get_Output_Max());
     Motor_Pitch_B.Init(&hfdcan1, DJI_Motor_ID_0x206, DJI_Motor_Control_Method_ANGLE, 3413);
 
@@ -376,6 +376,17 @@ void Class_Gimbal::TIM_Calculate_PeriodElapsedCallback()
     if(Get_Gimbal_Control_Type() != Gimbal_Control_Type_DISABLE){
         PID_Update();
     }
+    
+    if(Gimbal_Control_Type != Gimbal_Control_Type_DISABLE){
+        Motor_Pitch_B.Set_Compensite_Out(0.0);
+        //Motor_Pitch_B.Compensite_Control();
+
+        Motor_Pitch_A.Set_Compensite_Out(0.0);
+        //Motor_Pitch_A.Compensite_Control();       
+    }
+    else{
+        
+    }
 }
 
 void Class_Gimbal::Yaw_Angle_Transform_Main()
@@ -489,20 +500,6 @@ void Class_Gimbal::Yaw_Angle_Transform_B()
 
 void Class_Gimbal::Pitch_Angle_Transform_A()
 {
-    float temp_pitch;
-    // 如果电机Pitch_A的当前角度大于零位置
-    if (Motor_Pitch_A.Get_Now_Angle() > Motor_Pitch_A.Get_Zero_Position())
-    {
-        temp_pitch = (-(Motor_Pitch_A.Get_Now_Angle() - Motor_Pitch_A.Get_Zero_Position())); // 电机数据转现实坐标系
-        if (temp_pitch < -180.0f)
-            temp_pitch += 360.0f;
-    }
-    else if (Motor_Pitch_A.Get_Now_Angle() < Motor_Pitch_A.Get_Zero_Position())
-    {
-        temp_pitch = (Motor_Pitch_A.Get_Zero_Position() - Motor_Pitch_A.Get_Now_Angle());
-        if (temp_pitch > 180.0f)
-            temp_pitch -= 360.0f;
-    }
     Set_True_Angle_Pitch_A(IMU_Data_A.Pitch);
 
     Motor_Pitch_A.Set_Transform_Angle(Get_True_Angle_Pitch_A());
@@ -512,19 +509,6 @@ void Class_Gimbal::Pitch_Angle_Transform_A()
 
 void Class_Gimbal::Pitch_Angle_Transform_B()
 {
-    float temp_pitch;
-    if (Motor_Pitch_B.Get_Now_Angle() > Motor_Pitch_B.Get_Zero_Position())
-    {
-        temp_pitch = (-(Motor_Pitch_B.Get_Now_Angle() - Motor_Pitch_B.Get_Zero_Position())); // 电机数据转现实坐标系
-        if (temp_pitch < -180.0f)
-            temp_pitch += 360.0f;
-    }
-    else if (Motor_Pitch_B.Get_Now_Angle() < Motor_Pitch_B.Get_Zero_Position())
-    {
-        temp_pitch = (Motor_Pitch_B.Get_Zero_Position() - Motor_Pitch_B.Get_Now_Angle());
-        if (temp_pitch > 180.0f)
-            temp_pitch -= 360.0f;
-    }
     Set_True_Angle_Pitch_B(IMU_Data_B.Pitch);
 
     Motor_Pitch_B.Set_Transform_Angle(Get_True_Angle_Pitch_B());
@@ -603,8 +587,8 @@ float Gravity_Compensate = 1150.0f;//1150.0f;
 void Class_Gimbal::PID_Update()
 {
     //A头电机转动坐标系和IMU坐标系不一致
-    Motor_Pitch_A.Set_Out(-Motor_Pitch_A.PID_Omega.Get_Out());//PID输出值方向校准（硬件层面问题）
-    Motor_Pitch_B.Set_Out(Motor_Pitch_B.PID_Omega.Get_Out() + Gravity_Compensate);//PID输出值方向校准（硬件层面问题）
+    Motor_Pitch_A.Set_Out(-Motor_Pitch_A.Get_Out());//PID输出值方向校准（硬件层面问题）
+    Motor_Pitch_B.Set_Out(Motor_Pitch_B.Get_Out());//PID输出值方向校准（硬件层面问题）
 }
 int A_limit_flag = 0,B_limit_flag = 0;
 float temp_pre_omega_a, temp_pre_omega_b;
@@ -615,7 +599,7 @@ void Class_Gimbal::Limit_Update()
     static float Limit_Yaw_Min = 25.5f, Limit_Yaw_Max = 155.5f;
 
     if(MiniPC->Get_Auto_aim_Status_A() == Auto_aim_Coordination_Enable 
-    || MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Coordination_Enable){
+    || MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Coordination_Enable || MiniPC->Get_Angle_Range_Control_Mode()){
         Limit_Yaw_Min = 50.0f;
         Limit_Yaw_Max = 155.5f;
     }

@@ -19,6 +19,7 @@
 #include "dvc_imu.h"
 #include "dvc_lkmotor.h"
 
+#include "alg_LESO.h"
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported types ------------------------------------------------------------*/

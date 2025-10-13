@@ -21,10 +21,10 @@
 #define GIMBAL
 
 //调试或比赛状态
-//#define DEBUG
+#define DEBUG
 
 //功率控制相关
-#define POWER_CONTROL 1 //启用功率控制
+#define POWER_CONTROL 2 //功率控制策略
 //#define BIG_P_ALLOCATE
 //#define BUFFER_LOOP
 

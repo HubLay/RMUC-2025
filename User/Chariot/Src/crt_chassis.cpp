@@ -377,10 +377,7 @@ void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Sta
     
     //速度解算
     Speed_Resolution();    
-    /***************************超级电容*********************************/
-    Supercap.Set_Limit_Power(Referee->Get_Chassis_Power_Max());
-    Supercap.Set_Supercap_Mode(Get_Supercap_Mode());
-    Supercap.TIM_Supercap_PeriodElapsedCallback();
+
 
     #if POWER_CONTROL == 1
     /*************************功率限制策略*******************************/
@@ -397,7 +394,91 @@ void Class_Tricycle_Chassis::TIM_Calculate_PeriodElapsedCallback(Enum_Sprint_Sta
     
     
     Power_Limit.TIM_Adjust_PeriodElapsedCallback(Motor_Wheel);
+    #else if (POWER_CONTROL == 2)
+   
+    float Chassis_Buffer = 0.0;
+    //计算限制功率
+    if(Referee->Get_Referee_Status() == Referee_Status_ENABLE){
+        //缓冲环限制功率
+        Chassis_Buffer = Referee->Get_Chassis_Energy_Buffer();
+        Power_Management.Buffer_Power = (sqrt(Chassis_Buffer) - sqrt(Power_Management.Min_Buffer)) * Power_Management.Buffer_K;
+        Math_Constrain(&Power_Management.Buffer_Power, -60.0f, 45.0f);
+
+        if (Supercap.Get_Supercap_Status() == Supercap_Status_ENABLE && Get_Supercap_Control_Mode() == Supercap_ENABLE)
+        {
+            Power_Management.Max_Power = Supercap.Get_Buffer_Power() + Power_Management.Buffer_Power + Referee->Get_Chassis_Power_Max();
+        }
+        else
+        {
+            Power_Management.Max_Power = Power_Management.Buffer_Power + Referee->Get_Chassis_Power_Max();
+        }
+    }
+    else{
+        //裁判系统离线限制功率
+        Power_Management.Max_Power = 100.0f;
+        Chassis_Buffer = 0.0f;
+    }
+    
+    Power_Management.Actual_Power = Supercap.Get_Chassis_Power();//Referee->Get_Chassis_Power();
+    Power_Management.Total_error = 0.0f;
+
+#ifdef AGV
+    for (int i = 0; i < 4; i++)         //数据传递处理
+    {
+        //都是计算转子的
+        Power_Management.Motor_Data[i].feedback_omega = Motor_Wheel[i].Get_Now_Omega_Radian() * RAD_TO_RPM * Motor_Wheel[i].Get_Gearbox_Rate();
+        Power_Management.Motor_Data[i].feedback_torque = Motor_Wheel[i].Get_Now_Torque() * M3508_CMD_CURRENT_TO_TORQUE;     //与减速比有关
+        Power_Management.Motor_Data[i].torque = Motor_Wheel[i].Get_Out() * M3508_CMD_CURRENT_TO_TORQUE;                     //与减速比有关
+        Power_Management.Motor_Data[i].pid_output = Motor_Wheel[i].Get_Out();
+
+        Power_Management.Motor_Data[i + 4].feedback_omega  = Motor_Steer[i].Get_Now_Omega_Radian() * RAD_TO_RPM * Motor_Steer[i].Get_Gearbox_Rate();
+        Power_Management.Motor_Data[i + 4].feedback_torque = Motor_Steer[i].Get_Now_Torque() * M3508_CMD_CURRENT_TO_TORQUE;
+        Power_Management.Motor_Data[i + 4].torque          = Motor_Steer[i].Get_Out() * M3508_CMD_CURRENT_TO_TORQUE;
+        Power_Management.Motor_Data[i + 4].pid_output      = Motor_Steer[i].Get_Out();  
+    }
+
+    Power_Limit.Power_Task(Power_Management);
+
+    for (int i = 0; i < 4; i++)
+    {
+        Motor_Wheel[i].Set_Out(Power_Management.Motor_Data[i].output);
+        Motor_Wheel[i].Output();
+
+        Motor_Steer[i].Set_Out(Power_Management.Motor_Data[i + 4].output);
+        Motor_Steer[i].Output();
+    }
+#else
+    for (int i = 0; i < 4; i++)         //数据传递处理
+    {
+        //都是计算转子的
+        Power_Management.Motor_Data[i].feedback_omega = Motor_Wheel[i].Get_Now_Omega_Radian() * RAD_TO_RPM * Motor_Wheel[i].Get_Gearbox_Rate();
+        Power_Management.Motor_Data[i].feedback_torque = Motor_Wheel[i].Get_Now_Torque() * M3508_CMD_CURRENT_TO_TORQUE;     
+        Power_Management.Motor_Data[i].torque = Motor_Wheel[i].Get_Out() * M3508_CMD_CURRENT_TO_TORQUE;                     
+        Power_Management.Motor_Data[i].pid_output = Motor_Wheel[i].Get_Out();
+
+        Power_Management.Motor_Data[i].Target_error = fabs(Motor_Wheel[i].Get_Target_Omega_Radian() - Motor_Wheel[i].Get_Now_Omega_Radian());
+        
+    }
+    Power_Management.Total_error = 0.0;
+    Power_Limit.Power_Task(Power_Management);
+
+    for (int i = 0; i < 4; i++)
+    {
+        Motor_Wheel[i].Set_Out(Power_Management.Motor_Data[i].output);
+        Motor_Wheel[i].Output();
+    }
+#endif
+
+    if(Referee->Get_Referee_Status() == Referee_Status_ENABLE){
+        Supercap.Set_Limit_Power(Referee->Get_Chassis_Power_Max() + Chassis_Buffer + 5.0f);
+    }
+    else{
+        Supercap.Set_Limit_Power(100.0f);
+    }
     #endif
+
+    /***************************超级电容*********************************/
+    Supercap.TIM_Supercap_PeriodElapsedCallback();
 }
 
 void Class_Tricycle_Chassis::Axis_Transform(void){
@@ -411,7 +492,6 @@ void Class_Tricycle_Chassis::Axis_Transform(void){
             Motor_Steer[i].Yaw = Motor_Steer[i].Get_Zero_Position() - Motor_Steer[i].Get_Now_Radian();
             if(Motor_Steer[i].Yaw > PI) Motor_Steer[i].Yaw -= 2*PI;
         }
-        
     }
 }
 
