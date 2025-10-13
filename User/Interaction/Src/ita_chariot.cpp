@@ -424,7 +424,6 @@ void Class_Chariot::Control_Chassis()
     switch(DR16_Left_Switch_Status){
         case (DR16_Switch_Status_UP):   // 左上 小陀螺模式
         {
-
             Chassis.Set_Chassis_Control_Type(Chassis_Control_Type_SPIN);
             break;
         }

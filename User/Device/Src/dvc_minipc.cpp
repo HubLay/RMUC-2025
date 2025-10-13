@@ -83,7 +83,7 @@ extern Referee_Rx_E_t CAN3_Chassis_Rx_Data_E;
 extern Referee_Rx_F_t CAN3_Chassis_Rx_Data_F;
 extern Referee_Rx_G_t CAN3_Chassis_Rx_Data_G;
 volatile int index = 0;
-volatile uint8_t Test_Data = 0;
+volatile uint16_t Test_Data = 0;
 void Class_MiniPC::Output()
 {
   //
@@ -98,10 +98,10 @@ void Class_MiniPC::Output()
   Data_MCU_To_NUC.Self_blood                     = CAN3_Chassis_Rx_Data_A.self_blood;
   Data_MCU_To_NUC.Self_Outpost_HP                = CAN3_Chassis_Rx_Data_A.self_outpost_HP;
   Data_MCU_To_NUC.Remaining_Time                 = CAN3_Chassis_Rx_Data_A.remaining_time;
-  Data_MCU_To_NUC.Oppo_Outpost_HP                = 1500;//CAN3_Chassis_Rx_Data_B.oppo_outpost_HP;
-  Data_MCU_To_NUC.Self_Base_HP                   = 50;//CAN3_Chassis_Rx_Data_B.self_base_HP;   
+  Data_MCU_To_NUC.Oppo_Outpost_HP                = CAN3_Chassis_Rx_Data_B.oppo_outpost_HP;
+  Data_MCU_To_NUC.Self_Base_HP                   = CAN3_Chassis_Rx_Data_B.self_base_HP;   
   Data_MCU_To_NUC.Color_Invincible_State         = CAN3_Chassis_Rx_Data_A.color_invincible_state << 7 | CAN3_Chassis_Rx_Data_A.color_invincible_state << 5;
-  Data_MCU_To_NUC.Projectile_allowance           = 500;//CAN3_Chassis_Rx_Data_B.projectile_allowance_17mm;
+  Data_MCU_To_NUC.Projectile_allowance           = CAN3_Chassis_Rx_Data_B.projectile_allowance_17mm;
   Data_MCU_To_NUC.Remaining_Energy               = CAN3_Chassis_Rx_Data_C.Remaining_Energy;
   Data_MCU_To_NUC.Supercap_Proportion            = CAN3_Chassis_Rx_Data_C.Supercap_Proportion;
   Data_MCU_To_NUC.Target_Position_X              = CAN3_Chassis_Rx_Data_G.Target_Position_X;

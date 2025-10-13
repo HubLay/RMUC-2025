@@ -725,6 +725,6 @@ extern "C" void Task_Init()
     #ifdef CHASSIS
 
     #endif
-}
+ }
 
 /************************ COPYRIGHT(C) USTC-ROBOWALKER **************************/

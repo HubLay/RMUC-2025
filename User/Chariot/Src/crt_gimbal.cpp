@@ -43,8 +43,8 @@ void Class_Gimbal::Init()
     Motor_Yaw_B.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Yaw_B.Get_Output_Max(), Motor_Yaw_B.Get_Output_Max());
     Motor_Yaw_B.Init(&hfdcan1, DJI_Motor_ID_0x205, DJI_Motor_Control_Method_ANGLE, 2048);
 
-    Motor_Main_Yaw.PID_Angle.Init(0.15f, 0.0f, 0.0002f, 0.0f, 3, 15);
-    Motor_Main_Yaw.PID_Omega.Init(1700.0f, 5.0f, 0.0f, 0.0f, 400.0f, 2048.0f);
+    Motor_Main_Yaw.PID_Angle.Init(0.18f, 0.0f, 0.0002f, 0.0f, 3, 15);
+    Motor_Main_Yaw.PID_Omega.Init(1000.0f, 5.0f, 0.0f, 0.0f, 400.0f, 2048.0f);
     Motor_Main_Yaw.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Main_Yaw.Get_Output_Max(), Motor_Main_Yaw.Get_Output_Max());
     Motor_Main_Yaw.Init(&hfdcan3, LK_Motor_ID_0x141, LK_Motor_Control_Method_ANGLE, 2048);
     
@@ -372,12 +372,10 @@ void Class_Gimbal::TIM_Calculate_PeriodElapsedCallback()
     Motor_Pitch_A.TIM_PID_PeriodElapsedCallback();
     Motor_Pitch_B.TIM_PID_PeriodElapsedCallback();
 
-    //输出方向更新    重力补偿加输出方向镜像原因转换，只需输出反向即可转换回去（相机是正的，假设B力矩正的时候是向下,反了，所以输出反向）
-    if(Get_Gimbal_Control_Type() != Gimbal_Control_Type_DISABLE){
-        PID_Update();
-    }
-    
     if(Gimbal_Control_Type != Gimbal_Control_Type_DISABLE){
+        //输出方向更新    重力补偿加输出方向镜像原因转换，只需输出反向即可转换回去（相机是正的，假设B力矩正的时候是向下,反了，所以输出反向）
+        PID_Update();
+        
         Motor_Pitch_B.Set_Compensite_Out(0.0);
         //Motor_Pitch_B.Compensite_Control();
 
