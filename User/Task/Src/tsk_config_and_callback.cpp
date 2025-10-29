@@ -536,6 +536,7 @@ void MiniPC_UART_Callback(uint8_t *Buffer, uint16_t Length)
  * @brief TIM4任务回调函数
  *
  */
+extern Referee_Rx_A_t CAN3_Chassis_Rx_Data_A;
 void Task100us_TIM4_Callback()
 {
     #ifdef CHASSIS
@@ -567,6 +568,13 @@ void Task100us_TIM4_Callback()
                 chariot.Booster_B.Set_Booster_Control_Type(Booster_Control_Type_DISABLE);
                 chariot.Chassis.Set_Chassis_Control_Type(Chassis_Control_Type_DISABLE);
             }
+        }
+
+        if(CAN3_Chassis_Rx_Data_A.game_process == 4 && chariot.DR16.Get_DR16_Status() == DR16_Status_DISABLE && chariot.MiniPC.Get_MiniPC_Status() == MiniPC_Status_ENABLE){
+            chariot.DR16.Set_Left_Switch(DR16_Switch_Status_DOWN);
+            chariot.DR16.Set_Right_Switch(DR16_Switch_Status_DOWN);
+
+            chariot.TIM_Control_Callback();
         }
         #endif
     #endif

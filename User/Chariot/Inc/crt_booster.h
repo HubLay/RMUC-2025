@@ -23,6 +23,7 @@
 #include "dvc_referee.h"
 #include "dvc_djimotor.h"
 #include "dvc_minipc.h"
+#include "crt_chassis.h"
 
 /* Exported macros -----------------------------------------------------------*/
 
@@ -101,6 +102,8 @@ public:
     //上位机
     Class_MiniPC *MiniPC;
 
+    Class_Tricycle_Chassis *Chassis;
+
     //拨弹盘电机
     Class_DJI_Motor_C610 Motor_Driver;
 
@@ -164,7 +167,7 @@ protected:
     Enum_Friction_Control_Type Friction_Control_Type = Friction_Control_Type_DISABLE;
     Enum_Booster_Type Booster_Type;
     //摩擦轮角速度
-    float Friction_Omega = 670.0f;
+    float Friction_Omega = 690.0f;
     //拨弹盘实际的目标速度, 一圈八发子弹
     float Driver_Omega = -2.0f * PI * 2;
     //拨弹轮目标绝对角度 加圈数

@@ -49,13 +49,13 @@ void Class_Gimbal::Init()
     Motor_Main_Yaw.Init(&hfdcan3, LK_Motor_ID_0x141, LK_Motor_Control_Method_ANGLE, 2048);
     
     // pitch轴电机
-    Motor_Pitch_A.PID_Angle.Init(18.f, 0.0f, 0.005f, 0.0f, 2.f, 650.f);
-    Motor_Pitch_A.PID_Omega.Init(110.0f, 1000.0f, 0.0f, 0.0f, 10000, Motor_Pitch_A.Get_Output_Max(),0.f,0.f,0.f);
+    Motor_Pitch_A.PID_Angle.Init(16.f, 0.0f, 0.0180f, 0.0f, 2.f, 650.f);
+    Motor_Pitch_A.PID_Omega.Init(90.0f, 500.0f, 0.0f, 0.0f, 10000, Motor_Pitch_A.Get_Output_Max(),0.f,0.f,0.f);
     Motor_Pitch_A.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Pitch_A.Get_Output_Max(), Motor_Pitch_A.Get_Output_Max());
     Motor_Pitch_A.Init(&hfdcan2, DJI_Motor_ID_0x206, DJI_Motor_Control_Method_ANGLE, 3413);
 
-    Motor_Pitch_B.PID_Angle.Init(22.f, 0.0f, 0.005f, 0.0f, 2.f, 650.f);
-    Motor_Pitch_B.PID_Omega.Init(130.0f, 1000.0f, 0.0f, 0.0f, 10000, Motor_Pitch_B.Get_Output_Max(),0.f,0.f,0.f);
+    Motor_Pitch_B.PID_Angle.Init(20.f, 0.0f, 0.012f, 0.0f, 2.f, 650.f);
+    Motor_Pitch_B.PID_Omega.Init(100.0f, 700.0f, 0.0f, 0.0f, 10000, Motor_Pitch_B.Get_Output_Max(),0.f,0.f,0.f);
     Motor_Pitch_B.PID_Torque.Init(0.f, 0.0f, 0.0f, 0.0f, Motor_Pitch_B.Get_Output_Max(), Motor_Pitch_B.Get_Output_Max());
     Motor_Pitch_B.Init(&hfdcan1, DJI_Motor_ID_0x206, DJI_Motor_Control_Method_ANGLE, 3413);
 
@@ -65,7 +65,7 @@ void Class_Gimbal::Init()
     Motor_Pitch_A.Set_Zero_Position(166.157227f);
     Motor_Pitch_B.Set_Zero_Position(262.749023f);
 
-    IMU_A_Angle_Filter.Init(0.5, 0.1);
+    BMI_ACCY_Filter.Init(0.8, 0.001);
     IMU_B_Angle_Filter.Init(1.5, 0.2);
 }
 
@@ -375,15 +375,9 @@ void Class_Gimbal::TIM_Calculate_PeriodElapsedCallback()
     if(Gimbal_Control_Type != Gimbal_Control_Type_DISABLE){
         //输出方向更新    重力补偿加输出方向镜像原因转换，只需输出反向即可转换回去（相机是正的，假设B力矩正的时候是向下,反了，所以输出反向）
         PID_Update();
-        
-        Motor_Pitch_B.Set_Compensite_Out(0.0);
-        //Motor_Pitch_B.Compensite_Control();
-
-        Motor_Pitch_A.Set_Compensite_Out(0.0);
-        //Motor_Pitch_A.Compensite_Control();       
     }
     else{
-        
+
     }
 }
 

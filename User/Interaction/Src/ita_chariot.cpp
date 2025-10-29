@@ -60,11 +60,13 @@ void Class_Chariot::Init(float __DR16_Dead_Zone)
         Booster_A.Referee = &Referee;
         Booster_A.Init(Booster_A.Get_Booster_Type());
         Booster_A.MiniPC = &MiniPC;
+        Booster_A.Chassis = &Chassis;
         //发射机构B
         Booster_B.Set_Booster_Type(Booster_Type_B);
         Booster_B.Referee = &Referee;
         Booster_B.Init(Booster_B.Get_Booster_Type());
         Booster_B.MiniPC = &MiniPC;
+        Booster_B.Chassis = &Chassis;
 				
         //上位机
         MiniPC.Init(&MiniPC_USB_Manage_Object,&UART8_Manage_Object,&CAN3_Manage_Object);
@@ -90,7 +92,7 @@ void Class_Chariot::CAN_Chassis_Tx_Gimbal_Callback()
     uint8_t Flag[6] = {0};
     float Pre_Count[6] = {0};
     uint16_t Position[8] = {0};
-    float Bullet_Speed_A = 0.f, Bullet_Speed_B = 0.f;
+    int16_t Bullet_Speed_A = 0.f, Bullet_Speed_B = 0.f;
     int16_t Self_Position_X,Self_Position_Y;
     int16_t Target_Position_X,Target_Position_Y;
     //数据更新
@@ -306,6 +308,10 @@ Referee_Rx_D_t CAN3_Chassis_Rx_Data_D;
 Referee_Rx_E_t CAN3_Chassis_Rx_Data_E;
 Referee_Rx_F_t CAN3_Chassis_Rx_Data_F;
 Referee_Rx_G_t CAN3_Chassis_Rx_Data_G;
+
+volatile float Speed_A = 0.0f;
+volatile float Speed_B = 0.0f;
+
 #ifdef GIMBAL
 void Class_Chariot::CAN_Gimbal_Rx_Chassis_Callback()
 {
@@ -336,6 +342,8 @@ void Class_Chariot::CAN_Gimbal_Rx_Chassis_Callback()
         }
         case (0x197):{
             memcpy(&CAN3_Chassis_Rx_Data_E, CAN_Manage_Object->Rx_Buffer.Data, sizeof(Referee_Rx_E_t));
+            Speed_A = (float)CAN3_Chassis_Rx_Data_E.Bullet_Speed_A / 100.0f;
+            Speed_B = (float)CAN3_Chassis_Rx_Data_E.Bullet_Speed_B / 100.0f;
             break;
         }
         case (0x196):{
@@ -480,6 +488,10 @@ void Class_Chariot::Control_Chassis()
             Chassis.Set_Target_Velocity_Y(0.0f);
         }
     }
+
+    //记录云台朝向方位的目标速度
+    Gimbal.Set_Gimbal_Target_Velocity_X(Chassis.Get_Target_Velocity_X());
+    Gimbal.Set_Gimbal_Target_Velocity_Y(Chassis.Get_Target_Velocity_Y());
 
     //相对角度计算
     gimbal_angle = Gimbal.Motor_Main_Yaw.Get_Zero_Position();

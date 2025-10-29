@@ -266,6 +266,8 @@ public:
     inline void Set_True_Angle_Pitch_A(float __True_Angle_Pitch_A);
     inline void Set_True_Angle_Pitch_B(float __True_Angle_Pitch_B);
     inline void Set_True_Angle_Yaw_Main(float __True_Angle_Yaw_Main);
+    inline void Set_Gimbal_Target_Velocity_X(float __Gimbal_Target_Velocity_X);
+    inline void Set_Gimbal_Target_Velocity_Y(float __Gimbal_Target_Velocity_Y);
 
     void TIM_Calculate_PeriodElapsedCallback();
     void Yaw_Angle_Transform_A();
@@ -282,7 +284,7 @@ public:
 
     IMU_Data IMU_Data_A;
     IMU_Data IMU_Data_B;
-    Class_Filter_Kalman IMU_A_Angle_Filter;
+    Class_Filter_Kalman BMI_ACCY_Filter;
     Class_Filter_Kalman IMU_B_Angle_Filter;
 
 protected:
@@ -317,6 +319,11 @@ protected:
     float True_Angle_Yaw_Main = 0.0f;
 
     uint16_t A_Cruise_Flag = 0,B_Cruise_Flag = 0;                   //巡航状态标志位，正在处于巡航置1
+
+    float Accel_Compensite_Kp  = 0.0f;
+    float Accel_Compensite_Out = 0.0f;
+    float Gimbal_Target_Velocity_X = 0.0f;                      //云台朝向方位的目标速度，用于做云台补偿前馈
+    float Gimbal_Target_Velocity_Y = 0.0f;                      //云台朝向方位的目标速度，用于做云台补偿前馈
 
     //读变量
 
@@ -473,6 +480,16 @@ void Class_Gimbal::Set_Target_Pitch_Angle_B(float __Target_Pitch_Angle_B)
 void Class_Gimbal::Set_True_Angle_Yaw_Main(float __True_Angle_Yaw_Main)
 {
     True_Angle_Yaw_Main = __True_Angle_Yaw_Main;
+}
+
+inline void Class_Gimbal::Set_Gimbal_Target_Velocity_X(float __Gimbal_Target_Velocity_X)
+{
+    Gimbal_Target_Velocity_X = __Gimbal_Target_Velocity_X;
+}
+
+inline void Class_Gimbal::Set_Gimbal_Target_Velocity_Y(float __Gimbal_Target_Velocity_Y)
+{
+    Gimbal_Target_Velocity_Y = __Gimbal_Target_Velocity_Y;
 }
 
 void Class_Gimbal::Set_True_Angle_Yaw_A(float __True_Angle_Yaw_A)

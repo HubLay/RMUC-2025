@@ -21,7 +21,7 @@
 #define GIMBAL
 
 //调试或比赛状态
-#define DEBUG
+//#define DEBUG
 
 //功率控制相关
 #define POWER_CONTROL 2 //功率控制策略

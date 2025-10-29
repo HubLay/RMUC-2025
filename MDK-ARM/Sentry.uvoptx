@@ -232,7 +232,7 @@
         <Ww>
           <count>13</count>
           <WinNumber>1</WinNumber>
-          <ItemText>CAN3_Chassis_Rx_Data_A</ItemText>
+          <ItemText>CAN3_Chassis_Rx_Data_A,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>14</count>
@@ -242,7 +242,7 @@
         <Ww>
           <count>15</count>
           <WinNumber>1</WinNumber>
-          <ItemText>CAN3_Chassis_Rx_Data_B</ItemText>
+          <ItemText>CAN3_Chassis_Rx_Data_B,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>16</count>
@@ -262,7 +262,32 @@
         <Ww>
           <count>19</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Test_Data,0x0A</ItemText>
+          <ItemText>CAN3_Chassis_Rx_Data_E,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>20</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\Sentry\../User/Interaction/Src/ita_chariot.cpp\CAN3_Chassis_Rx_Data_F</ItemText>
+        </Ww>
+        <Ww>
+          <count>21</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>CAN3_Chassis_Tx_Data_E</ItemText>
+        </Ww>
+        <Ww>
+          <count>22</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>CAN3_Chassis_Tx_Data_F</ItemText>
+        </Ww>
+        <Ww>
+          <count>23</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Speeed_A</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\Sentry\../User/Task/Src/tsk_config_and_callback.cpp\chariot.MiniPC_Status</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -379,7 +404,7 @@
 
   <Group>
     <GroupName>Interaction</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -399,7 +424,7 @@
 
   <Group>
     <GroupName>Chariot</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
