@@ -17,6 +17,7 @@
 #include "dvc_djimotor.h"
 #include "dvc_minipc.h"
 #include "dvc_imu.h"
+#include "dvc_extrenal_imu.h"
 #include "dvc_lkmotor.h"
 
 #include "alg_LESO.h"
@@ -227,6 +228,8 @@ public:
 
     //imu对象
     Class_IMU Boardc_BMI;
+
+    Class_External_IMU External_BMI_B;
 
     Class_MiniPC *MiniPC;
 

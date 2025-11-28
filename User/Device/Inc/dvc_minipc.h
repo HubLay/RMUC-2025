@@ -134,7 +134,6 @@ enum Enum_MiniPC_Chassis_Control_Mode : uint8_t
     MiniPC_Chassis_Control_Mode_NORMAL = 0,  // 不随动
     MiniPC_Chassis_Control_Mode_FOLLOW,      // 随动
     MiniPC_Chassis_Control_Mode_SPIN,        // 小陀螺
-    MiniPC_Chassis_Control_Mode_NORMAL_SPIN, // 不随动+受击打
 };
 
 /**
@@ -253,22 +252,16 @@ struct Struct_MiniPC_Rx_Data
     int16_t Gimbal_Angular_Velocity_Yaw_Main;                    // 目标角速度 w
     int16_t Gimbal_Angular_Velocity_Yaw_A;
     int16_t Gimbal_Angular_Velocity_Pitch_A;                     // 目标角速度 p   
-    int16_t Gimbal_Angular_Velocity_Yaw_B;
-    int16_t Gimbal_Angular_Velocity_Pitch_B;
     int16_t Gimbal_Target_X_A;                                 // 装甲板在云台坐标系的 x 坐标
     int16_t Gimbal_Target_Y_A;                                 // 装甲板在云台坐标系的 y 坐标
     int16_t Gimbal_Target_Z_A;                                 // 装甲板在云台坐标系的 z 坐标
-    int16_t Gimbal_Target_X_B;                                 // 装甲板在云台坐标系的 x 坐标
-    int16_t Gimbal_Target_Y_B;                                 // 装甲板在云台坐标系的 y 坐标
-    int16_t Gimbal_Target_Z_B;                                 // 装甲板在云台坐标系的 z 坐标
     Enum_MiniPC_Chassis_Control_Mode Chassis_Control_Mode; // 底盘控制模式 随动/小陀螺
     uint8_t Control_Type_A; // 云台控制模式                 是否识别到目标标志位
-    uint8_t Control_Type_B; // 云台控制模式                 是否识别到目标标志位
+    uint8_t Posture_Control_Mode;                       //姿态
     uint8_t Device_Mode;    //外设模式超电的控制模式
     uint32_t Sentry_cmd;                                    //向裁判系统发送的烧饼复活，买弹等的控制信息
     uint16_t Robot_Position_X;                              //向裁判系统转发的烧饼目标路径点位信息
     uint16_t Robot_Position_Y;                              //向裁判系统转发的烧饼目标路径点位信息
-    uint8_t Angle_Range_Control;                                    //角度限幅控制
     uint16_t crc16;
 } __attribute__((packed));
 
@@ -317,8 +310,6 @@ struct Struct_MiniPC_Tx_Data
     int16_t Gimbal_Now_Yaw_Angle_Main; // Main云台yaw角度
     int16_t Gimbal_Now_Yaw_Angle_A;    // A云台yaw角度  
     int16_t Gimbal_Now_Pitch_Angle_A;  // A云台pitch角度
-    int16_t Gimbal_Now_Yaw_Angle_B;    // B云台yaw角度
-    int16_t Gimbal_Now_Pitch_Angle_B;  // B云台pitch角度
     int16_t Chassis_Now_yaw_Angle;   // 当前底盘yaw角度
     uint8_t Game_process;          // 比赛阶段
     uint16_t Self_blood;           // 自身hp
@@ -734,16 +725,6 @@ float Class_MiniPC::Get_Gimbal_Angle_Yaw()
 }
 
 /**
- * @brief 获取云台角度限幅的控制方式
- *
- * @return
- */
-inline uint8_t Class_MiniPC::Get_Angle_Range_Control_Mode()
-{
-  return (Data_NUC_To_MCU.Angle_Range_Control);
-}
-
-/**
  * @brief 获取底盘移动控制模式
  *
  * @return Enum_MiniPC_Chassis_Control_Mode 移动控制模式
@@ -768,7 +749,7 @@ Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_A()
  */
 Enum_Auto_aim_Status Class_MiniPC::Get_Auto_aim_Status_B()
 {
-    return Enum_Auto_aim_Status(Data_NUC_To_MCU.Control_Type_B & 0x03);
+    return Enum_Auto_aim_Status(0);
 }
 /**
  * @brief 获取左头前哨站模式
@@ -786,7 +767,7 @@ Enum_Outpost_Mode Class_MiniPC::Get_Outpost_Mode_A()
  */
 Enum_Outpost_Mode Class_MiniPC::Get_Outpost_Mode_B()
 {
-    return Enum_Outpost_Mode(Data_NUC_To_MCU.Control_Type_B >> 4 & 0x01);
+    return Enum_Outpost_Mode(0);
 }
 /**
  * @brief 获取超电模式

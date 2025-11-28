@@ -30,7 +30,10 @@
 void Class_Gimbal::Init()
 {
     // imu初始化
-    Boardc_BMI.Init();
+    Boardc_BMI.Init(-0.0025f);
+
+    External_BMI_B.Init(-0.000235f);
+
 
     // yaw轴电机
     Motor_Yaw_A.PID_Angle.Init(30.f, 0.0f, 0.0f, 0.0f, 500, 500);
@@ -208,7 +211,7 @@ void Class_Gimbal::Output()
                 pre_yaw_a = Get_True_Angle_Yaw_A();
                 pre_pitch_a = Get_True_Angle_Pitch_A();
             }
-            else if (MiniPC->Get_Auto_aim_Status_A() == Auto_aim_Status_ENABLE || MiniPC->Get_Auto_aim_Status_A() == Auto_aim_Coordination_Enable)
+            else if (MiniPC->Get_Auto_aim_Status_A() == Auto_aim_Status_ENABLE)
             {
                 //这是处于间接识别到的阶段（识别不稳定或者装甲板在闪烁）
                 //也就是只要识别到一次目标，就会切换到自瞄模式，至少持续0.5s才会退出，这0.5s是为识别不稳定留下的空间
@@ -279,7 +282,7 @@ void Class_Gimbal::Output()
                 pre_yaw_b = Get_True_Angle_Yaw_B();
                 pre_pitch_b = Get_True_Angle_Pitch_B();
             }
-            else if (MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Status_ENABLE || MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Coordination_Enable)//右头自瞄开启
+            else if (MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Status_ENABLE)//右头自瞄开启
             {
                 if(MiniPC->Get_Rx_Yaw_Angle_B() == 0.f && MiniPC->Get_Rx_Pitch_Angle_B() == 0.f)
                 {
@@ -313,6 +316,7 @@ void Class_Gimbal::Output()
                 Set_Target_Yaw_Angle(last_yaw_main);
             }
             else{
+                last_yaw_main = Boardc_BMI.Get_Angle_Yaw();             //不能像其他变量一样一直更新，不然目标角度会一直变化，会有问题
                 Motor_Main_Yaw.Set_LK_Motor_Control_Method(LK_Motor_Control_Method_OMEGA);
                 Motor_Main_Yaw.Set_Target_Omega_Angle(MiniPC->Get_Gimbal_Angular_Velocity_Yaw_Main() / 100.0f);         //实际上单位是rad
             }
@@ -321,7 +325,6 @@ void Class_Gimbal::Output()
             last_yaw_b = Get_True_Angle_Yaw_B();
             last_pitch_a = Get_True_Angle_Pitch_A();
             last_pitch_b = Get_True_Angle_Pitch_B();
-            last_yaw_main = Boardc_BMI.Get_Angle_Yaw();
             pre_angle_main = Boardc_BMI.Get_Angle_Yaw();
         }
         else if ((Get_Gimbal_Control_Type() == Gimbal_Control_Type_MINIPC) && (MiniPC->Get_MiniPC_Status() == MiniPC_Status_DISABLE))
@@ -338,6 +341,11 @@ void Class_Gimbal::Output()
             Motor_Pitch_B.Set_Target_Angle(last_pitch_b);
             Motor_Yaw_A.Set_Target_Angle(last_yaw_a);
             Motor_Yaw_B.Set_Target_Angle(last_yaw_b);
+
+            //外部更新的Target可能也得在这里更新
+            Motor_Main_Yaw.Set_LK_Motor_Control_Method(LK_Motor_Control_Method_OMEGA);
+            Motor_Main_Yaw.Set_Target_Omega_Angle(6.0f);
+            Target_Yaw_Angle = last_yaw_main = Boardc_BMI.Get_Angle_Yaw();
         }
     }
 }
@@ -487,7 +495,7 @@ void Class_Gimbal::Yaw_Angle_Transform_B()
         temp_now += 360.f;
     //设置PID参数
     Motor_Yaw_B.Set_Transform_Angle(temp_now);
-    Motor_Yaw_B.Set_Transform_Omega(IMU_Data_B.Omega_Z);
+    Motor_Yaw_B.Set_Transform_Omega(External_BMI_B.Get_Gyro_Yaw() * 57.3f);
 }
 
 void Class_Gimbal::Pitch_Angle_Transform_A()
@@ -501,10 +509,10 @@ void Class_Gimbal::Pitch_Angle_Transform_A()
 
 void Class_Gimbal::Pitch_Angle_Transform_B()
 {
-    Set_True_Angle_Pitch_B(IMU_Data_B.Pitch);
+    Set_True_Angle_Pitch_B(-External_BMI_B.Get_Angle_Pitch());
 
     Motor_Pitch_B.Set_Transform_Angle(Get_True_Angle_Pitch_B());
-    Motor_Pitch_B.Set_Transform_Omega(IMU_Data_B.Omega_Y);
+    Motor_Pitch_B.Set_Transform_Omega(-External_BMI_B.Get_Gyro_Pitch() * 57.3f);
     Motor_Pitch_B.Set_Transform_Torque(-Motor_Pitch_B.Get_Now_Torque());
 }
 int invert_flag_main = 0;
@@ -589,16 +597,6 @@ volatile int Main_Yaw_Flag = 0;
 void Class_Gimbal::Limit_Update()
 {
     static float Limit_Yaw_Min = 25.5f, Limit_Yaw_Max = 155.5f;
-
-    if(MiniPC->Get_Auto_aim_Status_A() == Auto_aim_Coordination_Enable 
-    || MiniPC->Get_Auto_aim_Status_B() == Auto_aim_Coordination_Enable || MiniPC->Get_Angle_Range_Control_Mode()){
-        Limit_Yaw_Min = 50.0f;
-        Limit_Yaw_Max = 155.5f;
-    }
-    else{
-        Limit_Yaw_Min = 25.5f;
-        Limit_Yaw_Max = 155.5f;
-    }
  
     //可能干涉的严重死区，强制转出死区位置（不管是不是巡航模式）
     if(Get_True_Angle_Yaw_A() > -90.f && Get_True_Angle_Yaw_A() < -Limit_Yaw_Min)

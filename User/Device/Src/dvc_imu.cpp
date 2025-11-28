@@ -12,7 +12,7 @@
 #include "dvc_imu.h"
 
 
-void Class_IMU::Init()
+void Class_IMU::Init(float yaw_offset)
 {
     // 初始化BMI088传感器，计算零漂 并检查初始化是否成功
     IMU_BMI088.init(&hspi2,&BMI088_Raw_Data);
@@ -26,7 +26,7 @@ void Class_IMU::Init()
     IMU_MahonyAHRS.init(INS_Quat);
  
     //EKF初始化
-    IMU_QuaternionEKF_Init(10, 0.001, 10000000, 1, 0 ,&QEKF_INS);
+    IMU_QuaternionEKF_Init(10, 0.001, 10000000, 1, 0, yaw_offset, &QEKF_INS);
 
     INS.AccelLPF = 0.0085;
 
@@ -35,8 +35,6 @@ void Class_IMU::Init()
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
 }
-
-float tmp_gravity_b[3];
 
 void Class_IMU::TIM_Calculate_PeriodElapsedCallback(void)
 {

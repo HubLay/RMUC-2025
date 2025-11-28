@@ -422,33 +422,36 @@ void IMUA_UART7_Callback(uint8_t *Buffer, uint16_t Length)
 
 #ifdef GIMBAL
 volatile uint32_t IMU_B_Flag = 0;
+
 void IMUB_USART1_Callback(uint8_t *Buffer, uint16_t Length)
 {
-    IMU_B_Flag ++;
-    uint8_t Gyro_Data[28];
-    int i = 0,j = 0;
-    for(i = 0; i < 28; i++)
-    {
-        if((Buffer[i] == 0x55 && Buffer[i+1] == 0x55) && Buffer[i+2] == 0x01)
-        {
-            for(j = 0; j < 28; j++)
-            {
-                Gyro_Data[j] = Buffer[i];
-                i++;
-                if(i >= 29)
-                {
-                    Gyro_Data[j] = Buffer[i-29];
-                }
-            }
-            break;
-        }
-    }
-    chariot.Gimbal.IMU_Data_B.Roll = (float)((int16_t)(Gyro_Data[5] << 8) | Gyro_Data[4]) / 32768.0f * 180.0f;
-    chariot.Gimbal.IMU_Data_B.Pitch = (float)((int16_t)(Gyro_Data[7] << 8) | Gyro_Data[6]) / 32768.0f * 180.0f;
-    chariot.Gimbal.IMU_Data_B.Yaw = (float)((int16_t)(Gyro_Data[9] << 8) | Gyro_Data[8]) / 32768.0f * 180.0f;
-    chariot.Gimbal.IMU_Data_B.Omega_X = (float)((int16_t)(Gyro_Data[22] << 8) | Gyro_Data[21]) / 32768.0f * 2000.0f;
-    chariot.Gimbal.IMU_Data_B.Omega_Y = (float)((int16_t)(Gyro_Data[24] << 8) | Gyro_Data[23]) / 32768.0f * 2000.0f;
-    chariot.Gimbal.IMU_Data_B.Omega_Z = (float)((int16_t)(Gyro_Data[26] << 8) | Gyro_Data[25]) / 32768.0f * 2000.0f;
+    // IMU_B_Flag ++;
+    // uint8_t Gyro_Data[28];
+    // int i = 0,j = 0;
+    // for(i = 0; i < 28; i++)
+    // {
+    //     if((Buffer[i] == 0x55 && Buffer[i+1] == 0x55) && Buffer[i+2] == 0x01)
+    //     {
+    //         for(j = 0; j < 28; j++)
+    //         {
+    //             Gyro_Data[j] = Buffer[i];
+    //             i++;
+    //             if(i >= 29)
+    //             {
+    //                 Gyro_Data[j] = Buffer[i-29];
+    //             }
+    //         }
+    //         break;
+    //     }
+    // }
+    // chariot.Gimbal.IMU_Data_B.Roll = (float)((int16_t)(Gyro_Data[5] << 8) | Gyro_Data[4]) / 32768.0f * 180.0f;
+    // chariot.Gimbal.IMU_Data_B.Pitch = (float)((int16_t)(Gyro_Data[7] << 8) | Gyro_Data[6]) / 32768.0f * 180.0f;
+    // chariot.Gimbal.IMU_Data_B.Yaw = (float)((int16_t)(Gyro_Data[9] << 8) | Gyro_Data[8]) / 32768.0f * 180.0f;
+    // chariot.Gimbal.IMU_Data_B.Omega_X = (float)((int16_t)(Gyro_Data[22] << 8) | Gyro_Data[21]) / 32768.0f * 2000.0f;
+    // chariot.Gimbal.IMU_Data_B.Omega_Y = (float)((int16_t)(Gyro_Data[24] << 8) | Gyro_Data[23]) / 32768.0f * 2000.0f;
+    // chariot.Gimbal.IMU_Data_B.Omega_Z = (float)((int16_t)(Gyro_Data[26] << 8) | Gyro_Data[25]) / 32768.0f * 2000.0f;
+    chariot.Gimbal.External_BMI_B.UART_BMI_Data_Process(Buffer);
+
 }
 #endif
 
@@ -549,6 +552,7 @@ void Task100us_TIM4_Callback()
     #elif defined(GIMBAL)
         // 单给IMU消息开的定时器 ims
         chariot.Gimbal.Boardc_BMI.TIM_Calculate_PeriodElapsedCallback();
+        chariot.Gimbal.External_BMI_B.TIM_Calculate_PeriodElapsedCallback();
 
         #ifdef DEBUG
             if (chariot.DR16.Get_DR16_Status() == DR16_Status_DISABLE)
@@ -695,7 +699,7 @@ extern "C" void Task_Init()
         UART_Init(&huart5, DR16_UART5_Callback, 18);
         //陀螺仪
 		UART_Init(&huart7, IMUA_UART7_Callback, 56);
-        UART_Init(&huart1, IMUB_USART1_Callback, 56);
+        UART_Init(&huart1, IMUB_USART1_Callback, 14);
         //上位机USB
         USB_Init(&MiniPC_USB_Manage_Object,MiniPC_USB_Callback);
         //上位机串口

@@ -56,9 +56,7 @@ void Class_MiniPC::Data_Process(Enum_MiniPC_Data_Source Data_Source)
     memcpy(&CAN3_Sentry_CMD_Data[6], &Data_NUC_To_MCU.Robot_Position_Y, sizeof(uint16_t));
     //自瞄解算
     Auto_aim(float(Data_NUC_To_MCU.Gimbal_Target_X_A / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Y_A / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Z_A / 100.f), &Rx_Angle_Yaw_A, &Rx_Angle_Pitch_A, &Distance_A, Booster_Type_A);
-    Auto_aim(float(Data_NUC_To_MCU.Gimbal_Target_X_B / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Y_B / 100.f), float(Data_NUC_To_MCU.Gimbal_Target_Z_B / 100.f), &Rx_Angle_Yaw_B, &Rx_Angle_Pitch_B, &Distance_B, Booster_Type_B);
     Math_Constrain(&Rx_Angle_Pitch_A, -25.0f, 16.0f);
-    Math_Constrain(&Rx_Angle_Pitch_B, -25.0f, 16.0f);
     Rx_Target_Omega_Yaw_Main = (float)Data_NUC_To_MCU.Gimbal_Angular_Velocity_Yaw_Main / 100.0f;
   }
   else if (Data_Source == UART)
@@ -90,8 +88,6 @@ void Class_MiniPC::Output()
 	Data_MCU_To_NUC.header                         = Frame_Header;
   Data_MCU_To_NUC.Gimbal_Now_Pitch_Angle_A       = int16_t((Now_Angle_Pitch_A) * 100);
   Data_MCU_To_NUC.Gimbal_Now_Yaw_Angle_A         = int16_t( Now_Angle_Yaw_A * 100);
-  Data_MCU_To_NUC.Gimbal_Now_Pitch_Angle_B       = int16_t((Now_Angle_Pitch_B) * 100);
-  Data_MCU_To_NUC.Gimbal_Now_Yaw_Angle_B         = int16_t( Now_Angle_Yaw_B * 100);
   Data_MCU_To_NUC.Gimbal_Now_Yaw_Angle_Main      = int16_t( IMU->Get_Angle_Yaw() * 100);
   Data_MCU_To_NUC.Chassis_Now_yaw_Angle          = int16_t((IMU->Get_Angle_Yaw() + Now_Angle_Relative) * 100);
   Data_MCU_To_NUC.Game_process                   = CAN3_Chassis_Rx_Data_A.game_process;

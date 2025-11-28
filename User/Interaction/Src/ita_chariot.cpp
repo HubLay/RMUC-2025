@@ -467,10 +467,6 @@ void Class_Chariot::Control_Chassis()
                     Chassis.Set_Chassis_Control_Type(Chassis_Control_Type_SPIN);
                 }
                 break;
-                case(MiniPC_Chassis_Control_Mode_NORMAL_SPIN):{         //不随动受击打小陀螺
-                    Chassis.Set_Chassis_Control_Type(Chassis_Control_Type_FLLOW);
-                }
-                break;
             }
         }
     }
@@ -528,8 +524,7 @@ void Class_Chariot::Control_Chassis()
             if(MiniPC.Get_MiniPC_Status() != MiniPC_Status_DISABLE
                     && DR16.Get_Left_Switch()  == DR16_Switch_Status_DOWN)
             {//正常非随动加受击陀螺  小电脑模式下
-                if( MiniPC.Get_Chassis_Control_Mode() == MiniPC_Chassis_Control_Mode_NORMAL || 
-                    MiniPC.Get_Chassis_Control_Mode() == MiniPC_Chassis_Control_Mode_NORMAL_SPIN)
+                if( MiniPC.Get_Chassis_Control_Mode() == MiniPC_Chassis_Control_Mode_NORMAL)
                     chassis_omega = 0;
                 break;
             }
@@ -749,14 +744,14 @@ void Class_Chariot::Control_Booster()
             {
                 //当检测不到目标超过0.5s ---- 
                 //MiniPC.Get_Rx_Yaw_Angle_A() == 0.f && MiniPC.Get_Rx_Pitch_Angle_A() == 0.f（相当于给了0.5s的误差）
-                if((MiniPC.Get_Auto_aim_Status_A() == Auto_aim_Status_ENABLE || MiniPC.Get_Auto_aim_Status_A() == Auto_aim_Coordination_Enable) &&
+                if((MiniPC.Get_Auto_aim_Status_A() == Auto_aim_Status_ENABLE) &&
                   (MiniPC.Get_Rx_Yaw_Angle_A() != 0.f || MiniPC.Get_Rx_Pitch_Angle_A() != 0.f))
                     Booster_A.Set_Booster_Control_Type(Booster_Control_Type_REPEATED);
                     
                 else if (MiniPC.Get_Auto_aim_Status_A() == Auto_aim_Status_DISABLE)
                     Booster_A.Set_Booster_Control_Type(Booster_Control_Type_CEASEFIRE);
 
-                if((MiniPC.Get_Auto_aim_Status_B() == Auto_aim_Status_ENABLE || MiniPC.Get_Auto_aim_Status_B() == Auto_aim_Coordination_Enable) && 
+                if((MiniPC.Get_Auto_aim_Status_B() == Auto_aim_Status_ENABLE) && 
                   (MiniPC.Get_Rx_Yaw_Angle_B() != 0.f || MiniPC.Get_Rx_Pitch_Angle_B() != 0.f))
                     Booster_B.Set_Booster_Control_Type(Booster_Control_Type_REPEATED);
 
@@ -901,6 +896,7 @@ void Class_Chariot::TIM1msMod50_Alive_PeriodElapsedCallback()
             Gimbal.Motor_Yaw_B.TIM_Alive_PeriodElapsedCallback();
             Gimbal.Motor_Main_Yaw.TIM_Alive_PeriodElapsedCallback();
             Gimbal.Boardc_BMI.TIM1msMod50_Alive_PeriodElapsedCallback();
+            Gimbal.External_BMI_B.TIM1msMod50_Alive_PeriodElapsedCallback();
 
             Booster_A.Motor_Driver.TIM_Alive_PeriodElapsedCallback();
             Booster_A.Motor_Friction_Left.TIM_Alive_PeriodElapsedCallback();

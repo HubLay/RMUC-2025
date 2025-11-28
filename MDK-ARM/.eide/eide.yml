@@ -38,6 +38,7 @@ virtualFolder:
         - path: ../User/Device/Src/dvc_minipc.cpp
         - path: ../User/Device/Src/dvc_referee.cpp
         - path: ../User/Device/Src/dvc_supercap.cpp
+        - path: ../User/Device/Src/dvc_extrenal_imu.cpp
       folders: []
     - name: Driver
       files:
@@ -187,6 +188,7 @@ targets:
         - ../Drivers/CMSIS/Include
         - .cmsis/include
         - RTE/_Sentry
+        - ../DSP/Include
       libList: []
     excludeList:
       - <virtual_root>/Algorithm/alg_power_limit.cpp

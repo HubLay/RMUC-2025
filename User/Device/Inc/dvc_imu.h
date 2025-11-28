@@ -59,8 +59,8 @@ class Class_IMU
 {
     public:
 
-    void Init(void);
-    void TIM_Calculate_PeriodElapsedCallback(void);
+    void Init(float yaw_offset);
+    virtual void TIM_Calculate_PeriodElapsedCallback(void);
     void TIM1msMod50_Alive_PeriodElapsedCallback(void);
 
     float Get_Angle_Roll(void);
@@ -109,8 +109,9 @@ class Class_IMU
 
     //重力加速度
 	const float Gravity[3] = {0, 0, 9.81f};
+    float tmp_gravity_b[3];             //临时复制转换坐标系使用
   
-  float Target_Tempreture = 40.;
+    float Target_Tempreture = 40.;
 
     //DWT计数
     float INS_DWT_Dt;
