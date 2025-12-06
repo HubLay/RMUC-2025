@@ -343,9 +343,9 @@ void Class_Gimbal::Output()
             Motor_Yaw_B.Set_Target_Angle(last_yaw_b);
 
             //外部更新的Target可能也得在这里更新
-            Motor_Main_Yaw.Set_LK_Motor_Control_Method(LK_Motor_Control_Method_OMEGA);
-            Motor_Main_Yaw.Set_Target_Omega_Angle(6.0f);
-            Target_Yaw_Angle = last_yaw_main = Boardc_BMI.Get_Angle_Yaw();
+//            Motor_Main_Yaw.Set_LK_Motor_Control_Method(LK_Motor_Control_Method_OMEGA);
+//            Motor_Main_Yaw.Set_Target_Omega_Angle(6.0f);
+//            Target_Yaw_Angle = last_yaw_main = Boardc_BMI.Get_Angle_Yaw();
         }
     }
 }
